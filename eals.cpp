@@ -61,15 +61,15 @@ public:
 
 class eALS {
 public:
-  eALS(int _num_latent, int _max_epoch, double _lambda, 
+  eALS(int _num_factor, int _max_epoch, double _lambda, 
     double _confidence, double _diff_threshold, bool _verbose, 
     string _fname_train, string _fname_val):
-    num_latent(_num_latent), max_epoch(_max_epoch), lambda(_lambda), 
+    num_factor(_num_factor), max_epoch(_max_epoch), lambda(_lambda), 
     confidence(_confidence), diff_threshold(_diff_threshold), verbose(_verbose), 
     assigned(false), fname_train(_fname_train), fname_val(_fname_val) {
   }
 
-  int num_latent, topn, max_epoch, num_user, num_item, val_user;
+  int num_factor, topn, max_epoch, num_user, num_item, val_user;
   double lambda, confidence, diff_threshold;
   bool verbose, assigned;
   string fname_train, fname_val;
@@ -104,10 +104,10 @@ public:
   }
   */
   void train_validate() {
-    X = MatrixXd::Random(num_user, num_latent); 
-    X_current.resize(num_user, num_latent); 
-    Y = MatrixXd::Random(num_item, num_latent); 
-    Y_current.resize(num_item, num_latent);
+    X = MatrixXd::Random(num_user, num_factor); 
+    X_current.resize(num_user, num_factor); 
+    Y = MatrixXd::Random(num_item, num_factor); 
+    Y_current.resize(num_item, num_factor);
     getRhat();
     // getGT();
     for(int iter=0;iter<max_epoch;iter++) {
@@ -161,11 +161,11 @@ public:
 
     // train user factors
     starttime = clock();
-    MatrixXd Sq(num_latent, num_latent);
+    MatrixXd Sq(num_factor, num_factor);
     Sq = Y.transpose() * Y;
     MatrixXd SqT = Sq.transpose();
     for(int u=0;u<X.rows();u++) {
-      for(int f=0;f<num_latent;f++) {
+      for(int f=0;f<num_factor;f++) {
         rui_hat_f.resize(col_num[u]);
         numerator = X(u, f) * Sq(f, f) - X.row(u).dot(SqT.row(f));
         denominator = Sq(f, f) + lambda;
@@ -191,11 +191,11 @@ public:
 
     // train item factors
     starttime = clock();
-    MatrixXd Sp(num_latent, num_latent);
+    MatrixXd Sp(num_factor, num_factor);
     Sp = X.transpose() * X;
     MatrixXd SpT = Sp.transpose();
     for(int i=0;i<Y.rows();i++) {
-      for(int f=0;f<num_latent;f++) {
+      for(int f=0;f<num_factor;f++) {
         riu_hat_f.resize(row_num[i]);
         numerator = Y(i, f) * Sp(f, f) - Y.row(i).dot(SpT.row(f));
         denominator = Sp(f, f) + lambda;
@@ -308,7 +308,7 @@ public:
 
 
 int main() {
-	int num_latent, max_epoch;
+	int num_factor, max_epoch;
 	double lambda, confidence, diff_threshold;
 	bool verbose;
 	ifstream config_dir("./cfg.json");
@@ -317,7 +317,7 @@ int main() {
 	string errs, fname_train, fname_val;
 	bool ok = parseFromStream(builder, config_dir, &hyperparameters, &errs);
 	if(ok) {
-		num_latent = hyperparameters["num_latent"].asInt();
+		num_factor = hyperparameters["num_factor"].asInt();
 		max_epoch = hyperparameters["max_epoch"].asInt();
 		lambda = hyperparameters["lambda"].asDouble();
 		confidence = hyperparameters["confidence"].asDouble();
@@ -330,7 +330,7 @@ int main() {
 		cout << "parsing json failed" << endl;
 		exit(0);
 	}
-    eALS eals = eALS(num_latent, max_epoch, lambda, \
+    eALS eals = eALS(num_factor, max_epoch, lambda, \
     		         confidence, diff_threshold, verbose, \
     		         fname_train, fname_val);
     eals.loadData();
@@ -340,7 +340,7 @@ int main() {
     outFile_u << fixed;
     outFile_u << setprecision(10);
     for(int i=eals.num_user - eals.val_user; i<eals.num_user; i++) {
-    	vector<double> logit(num_latent);
+    	vector<double> logit(num_factor);
 		VectorXd::Map(&logit[0], eals.X.row(i).size()) = eals.X.row(i);
     	for(double i : logit) {
     		outFile_u << i << " ";
@@ -352,7 +352,7 @@ int main() {
     outFile_s << fixed;
     outFile_s << setprecision(10);
     for(int i=0; i<eals.num_item; i++) {
-    	vector<double> logit(num_latent);
+    	vector<double> logit(num_factor);
 		VectorXd::Map(&logit[0], eals.Y.row(i).size()) = eals.Y.row(i);
     	for(double i : logit) {
     		outFile_s << i << " ";
