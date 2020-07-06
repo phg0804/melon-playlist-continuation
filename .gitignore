@@ -5,3 +5,5 @@ arena_data
 __pycache__
 *.json
 *~
+song_tag_map.csv
+tag_id.csv
