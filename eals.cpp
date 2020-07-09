@@ -259,7 +259,7 @@ int main() {
         outFile_u << endl;
     }
     outFile_u.close();
-    ofstream outFile_s("song.txt", ios::trunc);
+    ofstream outFile_s("item.txt", ios::trunc);
     outFile_s << fixed;
     outFile_s << setprecision(10);
     for(int i=0; i<eals.num_item; i++) {
