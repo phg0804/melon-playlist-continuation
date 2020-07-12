@@ -6,3 +6,5 @@ __pycache__
 *.json
 *.csv
 *~
+song_tag_map.csv
+tag_id.csv
