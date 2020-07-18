@@ -1,8 +1,8 @@
 {
-	"num_factor" : 50,
-	"max_epoch" : 500,
-	"lambda" : 1, 
-	"confidence": 30,
+	"num_factor" : 100,
+	"max_epoch" : 20,
+	"lambda" : 100, 
+	"confidence": 300,
 	"diff_threshold" : 0.0001,
 	"verbose" : true,
 	"fname_train" : "./arena_data/orig/train_mm.txt",
