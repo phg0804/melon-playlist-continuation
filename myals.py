@@ -20,8 +20,8 @@ from implicit.recommender_base import MatrixFactorizationBase
 from implicit.utils import check_blas_config, nonzeros
 
 log = logging.getLogger("implicit")
-#val = pd.read_json('./arena_data/questions/val.json', encoding='UTF-8')
-val = pd.read_json('./res/val.json', encoding='UTF-8')
+val = pd.read_json('./arena_data/questions/val.json', encoding='UTF-8')
+#val = pd.read_json('./res/val.json', encoding='UTF-8')
 
 class MyAlternatingLeastSquares(MatrixFactorizationBase):
 
@@ -274,12 +274,11 @@ class MyAlternatingLeastSquares(MatrixFactorizationBase):
         X_tensor = torch.FloatTensor(self.item_factors[mask,:])
         Y1_tensor = torch.FloatTensor(self.user_factors.T[:,:707989])
         Y2_tensor = torch.FloatTensor(self.user_factors.T[:,707989:738186])
-        
         del self.item_factors
         del self.user_factors
         bs = 1
-        f = open("./tmp1.pkl", 'wb')
-        g = open("./tmp2.pkl", 'wb')
+        f = open("./predicted_songs.pkl", 'wb')
+        g = open("./predicted_tags.pkl", 'wb')
         tmp1 = []
         tmp2 = []
         x = X_tensor.to("cuda")
@@ -293,7 +292,10 @@ class MyAlternatingLeastSquares(MatrixFactorizationBase):
             results = torch.mm(x[i*bs:(i+1)*bs,], y1)
             results2 = torch.mm(x[i*bs:(i+1)*bs,], y2)
             _, indices = torch.sort(results, descending=True)
+            if(i==0):
+              print(_[:5,:5])
             _, indices2 = torch.sort(results2, descending=True)
+            
             for j in range(bs):
                 try:
                     tmp1.append(indices[j,:200].cpu().numpy())
