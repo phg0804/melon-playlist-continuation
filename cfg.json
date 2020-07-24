@@ -1,9 +1,9 @@
 {
-	"num_factor" : 50,
-	"max_epoch" : 500,
-	"lambda" : 1, 
-	"confidence": 30,
-	"diff_threshold" : 0.0001,
+	"num_factor" : 100,
+	"max_epoch" : 20,
+	"lambda" : 30, 
+	"confidence": 400,
+	"diff_threshold" : 0.01, 
 	"verbose" : true,
 	"fname_train" : "./arena_data/orig/train_mm.txt",
 	"fname_val" : "./arena_data/questions/val_mm.txt"

@@ -150,6 +150,7 @@ public:
 
         // train user factors
         //starttime = clock();
+        /*
         starttime = omp_get_wtime();
         MatrixXd Sq(num_factor, num_factor);
         Sq = Q.transpose() * Q;
@@ -181,6 +182,17 @@ public:
         printf("Updating P took ");
         printf("%.2lfs.\n", omp_get_wtime() - starttime);
         fflush(stdout);
+        */
+        FILE *fp = fopen("user.txt", "r");
+        for(int u=0;u<P.rows();u++) {
+        	for(int i=0;i<100;i++) {
+        		float x;
+        		fscanf(fp, "%f", &x);
+        		P(u,i) = x;
+			}
+		}
+		cout << P.row(0) << endl;
+		fclose(fp);
 
         // train item factors
         //starttime = clock();
@@ -220,7 +232,7 @@ public:
 
     double checkConvergence() {
         // Frobenius norm used
-        double diff_P = 1, diff_Q = 1;
+        double diff_P = 100000000, diff_Q = 100000000;
         if(assigned) {
             diff_P = (P - P_current).norm();
             diff_Q = (Q - Q_current).norm();
@@ -258,6 +270,9 @@ int main() {
         cout << "parsing json failed" << endl;
         exit(0);
     }
+    printf("num_factor : %d\n", num_factor);
+    printf("lambda : %lf\n", lambda);
+    printf("confidence : %lf\n", confidence);
     eALS eals = eALS(num_factor, max_epoch, lambda, \
                      confidence, diff_threshold, verbose, \
                      fname_train, fname_val);
