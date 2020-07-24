@@ -1,8 +1,10 @@
 import fire
 import pandas as pd
 import pickle
+
 from arena_util import load_json, write_json, remove_seen
 from google.colab import drive
+
 
 def date2int(date_str):
     return int(date_str[:4]) * 10000 + int(date_str[5:7]) * 100 + int(date_str[8:10])
@@ -39,7 +41,6 @@ class ArenaInferrer:
             tmp_tag[tag] += 1 / (n + tag_param[k])
           else:
             tmp_tag[tag] = 1 / (n + tag_param[k])    
-        
         sorted_tags = sorted(tmp_tag.items(), reverse=True, key=lambda _: _[1])
         sorted_tags = [k for (k, v) in sorted_tags]
 
@@ -68,17 +69,16 @@ class ArenaInferrer:
     
   def _infer(self, test_fpath, result_fpath):
     # Load models
-    import pickle
     with open("./model1.pkl", 'rb') as f:
       answers1 = pickle.load(f)
     with open("./model2.pkl", 'rb') as f:
       answers2 = pickle.load(f)
     with open("./model3.pkl", 'rb') as f:
       answers3 = pickle.load(f)
+
     self.test = pd.read_json(test_fpath, encoding='UTF-8')    
     self.w2v_results = pd.read_json('./omg2.json', encoding='UTF-8')
     self.most_results = pd.read_json('./omg2.json', encoding='UTF-8')
-
     self.song_meta = load_json("./res/song_meta.json")
     self.filter_future_songs(answers1, self.test)
     self.filter_future_songs(answers2, self.test)

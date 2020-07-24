@@ -3,17 +3,18 @@ from __future__ import print_function
 import argparse
 import codecs
 import logging
-import time
-import arena_data as au
-from scipy.sparse import csr_matrix
-
 import numpy as np
+import time
 import tqdm
+from scipy.sparse import csr_matrix
 
 from implicit.als import AlternatingLeastSquares
 from implicit.nearest_neighbours import (BM25Recommender, CosineRecommender,
                                          bm25_weight)
+
+import arena_data as au
 from myals import MyAlternatingLeastSquares
+
 
 log = logging.getLogger("implicit")
 
@@ -42,7 +43,6 @@ def calculate_similar_playlists(output_filename='similar-playlist.txt',
                         (np.array(rows), np.array(cols))), 
                         shape = (num_row, num_col))
 
-
   ratings.data = np.ones(len(ratings.data))
   log.info("read data file in %s", time.time() - start)
 
@@ -55,7 +55,7 @@ def calculate_similar_playlists(output_filename='similar-playlist.txt',
     ratings = (bm25_weight(ratings, B=0.9) * 5).tocsr()
 
   elif model_name == "myals":
-    model = MyAlternatingLeastSquares(factors=K, iterations=10)
+    model = MyAlternatingLeastSquares(factors=K)
 
     # lets weight these models by bm25weight.
     log.debug("weighting matrix by bm25_weight")
@@ -75,13 +75,13 @@ def calculate_similar_playlists(output_filename='similar-playlist.txt',
   start = time.time()
   model.fit(ratings)
   log.debug("trained model '%s' in %s", model_name, time.time() - start)
+  if model_name == "myals":
+    return
   log.debug("calculating top playlists")
 
   user_count = np.ediff1d(ratings.indptr)
   to_generate = np.arange(num_row)
   
-  if model_name == "myals":
-    return
   log.debug("calculating similar playlists")
   with tqdm.tqdm(total=len(to_generate)) as progress:
     with codecs.open(output_filename, "w", "utf8") as o:

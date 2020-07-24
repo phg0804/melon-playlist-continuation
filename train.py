@@ -1,27 +1,41 @@
 import fire
-
-import pickle
-import subprocess
-
 import os
-import time
 import pandas as pd
-from arena_util import load_json
-from arena_util import write_json
-from arena_util import remove_seen
+import pickle
+import time
 from tqdm import tqdm
+
+from arena_util import load_json, remove_seen
 
 import myimplicit
 
-#from google.colab import drive
-#drive.mount('/content/gdrive/')
-#!cd /content/gdrive/My\ Drive/melon-playlist-continuation
-#!pwd
-subprocess.call('ls', shell=True)
-
-from google.colab import drive
-
 class ArenaTrainer:
+    def _make_coo(self):
+        f = open('./coo.txt', 'w')
+        
+        song_meta = load_json('./res/song_meta.json')
+        num_song = len(song_meta)
+        num_tag = len(self.tag2id.keys())
+        del song_meta
+        
+        N = sum(self.data['songs'].apply(len)) + sum(self.data['tags'].apply(len))
+        maxrow = self.data['id'].max()
+
+        f.write("%d %d %d\n" % (maxrow + 1, num_song + num_tag, N))
+        
+        for i, q in self.train.iterrows():
+            for song in q['songs']:
+                f.write("%d %d %d %d\n" % (q['id'], song, 1, 0))
+            for tag in q['tags']:
+                f.write("%d %d %d %d\n" % (q['id'], self.tag2id[tag] + num_song, 1, 0))
+        f.close()
+        f = open("./coo.txt", 'a')
+        for i, q in self.test.iterrows():
+            for song in q['songs']:
+                f.write("%d %d %d %d\n" % (q['id'], song, 1, 1))
+            for tag in q['tags']:
+                f.write("%d %d %d %d\n" % (q['id'], self.tag2id[tag] + num_song, 1, 1))
+        f.close()
         
     def _get_ans(self):
         similar_playlists = {}
@@ -58,13 +72,13 @@ class ArenaTrainer:
                 ans.append({
                     'id': q['id'],
                     'songs': remove_seen(q['songs'], get_song)[:200],
-                    'tags': remove_seen(q['tags'], get_tag)[:20],
+                    'tags': remove_seen(q['tags'], get_tag)[:20]
                 })
             else:
                 ans.append({
                   'id': self.w2v_results.loc[i]['id'],
                   'songs': self.w2v_results.loc[i]['songs'],
-                  'tags': self.w2v_results.loc[i]['tags'],
+                  'tags': self.w2v_results.loc[i]['tags']
                 })     
         return ans
 
@@ -86,7 +100,7 @@ class ArenaTrainer:
                 ans.append({
                     'id': q['id'],
                     'songs': remove_seen(q['songs'], songs_list[cnt])[:200],
-                    'tags': remove_seen(q['tags'], [self.my_dict_inv[_] for _ in tags_list[cnt]])[:20],
+                    'tags': remove_seen(q['tags'], [self.id2tag[_] for _ in tags_list[cnt]])[:20],
                 })
                 cnt += 1
             
@@ -107,28 +121,41 @@ class ArenaTrainer:
         self.train = pd.read_json(train_fpath, encoding='UTF-8')
         self.test = pd.read_json(test_fpath, encoding='UTF-8')
         self.data = pd.concat([self.train, self.test])
-        self.data = self.data.set_index('id')
-
+        
+        # tag_id_map.pkl 만드는 코드
+        tag_set = set([])
+        for i, q in self.train.iterrows():
+          for s in q['tags']:
+            tag_set.add(s)
+        for i, q in self.test.iterrows():
+          for s in q['tags']:
+            tag_set.add(s)
+        self.tag2id = {x : i for i, x in enumerate(list(tag_set))}
+        self.id2tag = {i : x for i, x in enumerate(list(tag_set))}
+        '''
+        with open("tag_id_map.pkl", 'rb') as f:
+            self.my_dict = pickle.load(f)
+            self.my_dict_inv = {} 
+            for k, v in self.my_dict.items():
+                self.my_dict_inv[v] = k    
+        '''
+      
+        #self._make_coo()
+        
         # most_results를 그대로 쓸 것인가?
         # w2v_results 만드는 코드
-        self.w2v_results = pd.read_json("./omg2_real.json", encoding='UTF-8')
+        self.w2v_results = pd.read_json("./omg2.json", encoding='UTF-8')
+        self.data = self.data.set_index('id')
         self.song_dict = self.data['songs'].to_dict()
         self.tag_dict = self.data['tags'].to_dict()
-        # tag_id_map.pkl 만드는 코드
-        with open("tag_id_map.pkl", 'rb') as f:
-            my_dict = pickle.load(f)
-            self.my_dict_inv = {} 
-            for k, v in my_dict.items():
-                self.my_dict_inv[v] = k    
-
-        myimplicit.calculate_similar_playlists(model_name="myals", iterations=20, K=1024)
+        
+        myimplicit.calculate_similar_playlists(model_name="myals", K=102)
         answers1 = self._get_ans_myals()        
         myimplicit.calculate_similar_playlists(model_name="bm25", K=2)
         answers2 = self._get_ans()
         myimplicit.calculate_similar_playlists(model_name="bm25", K=6)
-        
         answers3 = self._get_ans()
-
+        print("sim")
         self._save_models(answers1, answers2, answers3)
 
     def train(self, train_fpath, test_fpath):
@@ -138,6 +165,9 @@ class ArenaTrainer:
             print(e)
 
 if __name__ == "__main__":
+    # only for execution using colab
+    from google.colab import drive
+    import subprocess
     drive.mount('/content/gdrive/')
     subprocess.call("cd /content/gdrive/My\ Drive/melon-playlist-continuation", shell=True)
     subprocess.call("pwd", shell=True)
