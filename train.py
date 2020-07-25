@@ -122,7 +122,6 @@ class ArenaTrainer:
         self.test = pd.read_json(test_fpath, encoding='UTF-8')
         self.data = pd.concat([self.train, self.test])
         
-        # tag_id_map.pkl 만드는 코드
         tag_set = set([])
         for i, q in self.train.iterrows():
           for s in q['tags']:
@@ -132,30 +131,22 @@ class ArenaTrainer:
             tag_set.add(s)
         self.tag2id = {x : i for i, x in enumerate(list(tag_set))}
         self.id2tag = {i : x for i, x in enumerate(list(tag_set))}
-        '''
-        with open("tag_id_map.pkl", 'rb') as f:
-            self.my_dict = pickle.load(f)
-            self.my_dict_inv = {} 
-            for k, v in self.my_dict.items():
-                self.my_dict_inv[v] = k    
-        '''
       
-        #self._make_coo()
+        self._make_coo()
         
-        # most_results를 그대로 쓸 것인가?
+        # TODO
         # w2v_results 만드는 코드
-        self.w2v_results = pd.read_json("./omg2.json", encoding='UTF-8')
+        self.w2v_results = pd.read_json("./w2v_results.json", encoding='UTF-8')
         self.data = self.data.set_index('id')
         self.song_dict = self.data['songs'].to_dict()
         self.tag_dict = self.data['tags'].to_dict()
         
-        myimplicit.calculate_similar_playlists(model_name="myals", K=102)
+        myimplicit.calculate_similar_playlists(model_name="myals", K=1024, test_fpath=test_fpath)
         answers1 = self._get_ans_myals()        
         myimplicit.calculate_similar_playlists(model_name="bm25", K=2)
         answers2 = self._get_ans()
         myimplicit.calculate_similar_playlists(model_name="bm25", K=6)
         answers3 = self._get_ans()
-        print("sim")
         self._save_models(answers1, answers2, answers3)
 
     def train(self, train_fpath, test_fpath):
@@ -173,3 +164,4 @@ if __name__ == "__main__":
     subprocess.call("pwd", shell=True)
 
     fire.Fire(ArenaTrainer)
+

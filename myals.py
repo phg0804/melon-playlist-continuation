@@ -20,17 +20,14 @@ from implicit.recommender_base import MatrixFactorizationBase
 from implicit.utils import check_blas_config, nonzeros
 
 log = logging.getLogger("implicit")
-val = pd.read_json('./arena_data/questions/val.json', encoding='UTF-8')
-#val = pd.read_json('./res/val.json', encoding='UTF-8')
 
 class MyAlternatingLeastSquares(MatrixFactorizationBase):
 
-    """ Alternating Least Squares
+    """ My Alternating Least Squares
 
-    A Recommendation Model based off the algorithms described in the paper 'Collaborative
-    Filtering for Implicit Feedback Datasets' with performance optimizations described in
-    'Applications of the Conjugate Gradient Method for Implicit Feedback Collaborative
-    Filtering.'
+    A revised version of Alternating Least Squares of Implicit library.
+    Diffrence is that myals does not find similar playlists but predicted items 
+    directly by matrix multiplication.
 
     Parameters
     ----------
@@ -73,11 +70,12 @@ class MyAlternatingLeastSquares(MatrixFactorizationBase):
         Array of latent factors for each user in the training set
     """
 
-    def __init__(self, factors=100, regularization=0.01, dtype=np.float32,
-                 use_native=True, use_cg=True, use_gpu=implicit.cuda.HAS_CUDA,
+    def __init__(self, num_song=707989, num_tag=30197, factors=100, 
+                 regularization=0.01, dtype=np.float32, use_native=True, 
+                 use_cg=True, use_gpu=implicit.cuda.HAS_CUDA,
                  iterations=15, calculate_training_loss=False,
                  validate_step=-1, validate_N=30, validate_proportion=0.05,
-                 num_threads=0):
+                 num_threads=0, test_fpath="./res/test.json"):
         super(MyAlternatingLeastSquares, self).__init__()
         # currently there are some issues when training on the GPU when some of the warps
         # don't have full factors. Round up to be warp aligned.
@@ -92,6 +90,9 @@ class MyAlternatingLeastSquares(MatrixFactorizationBase):
         # parameters on how to factorize
         self.factors = factors
         self.regularization = regularization
+        self.num_song = num_song
+        self.num_tag = num_tag
+        self.test_fpath = test_fpath
 
         # options on how to fit the model
         self.dtype = dtype
@@ -264,47 +265,40 @@ class MyAlternatingLeastSquares(MatrixFactorizationBase):
             log.info("Final training loss %.4f", loss)
 
         mask = []
-        for i, q in val.iterrows():
+        test = pd.read_json(self.test_fpath, encoding='UTF-8')
+        for i, q in test.iterrows():
             if(q['songs'] != [] or q['tags'] != []):
                 mask.append(q['id'])
+        del test
 
         X.to_host(self.user_factors)
         Y.to_host(self.item_factors)
         
         X_tensor = torch.FloatTensor(self.item_factors[mask,:])
-        Y1_tensor = torch.FloatTensor(self.user_factors.T[:,:707989])
-        Y2_tensor = torch.FloatTensor(self.user_factors.T[:,707989:738186])
+        Y1_tensor = torch.FloatTensor(self.user_factors.T[:,:self.num_song])
+        Y2_tensor = torch.FloatTensor(self.user_factors.T[:,self.num_song:self.num_song+self.num_tag])
         del self.item_factors
         del self.user_factors
-        bs = 1
         f = open("./predicted_songs.pkl", 'wb')
         g = open("./predicted_tags.pkl", 'wb')
-        tmp1 = []
-        tmp2 = []
+        songs = []
+        tags = []
         x = X_tensor.to("cuda")
         del X_tensor
         y1 = Y1_tensor.to("cuda")
         del Y1_tensor
         y2 = Y2_tensor.to("cuda")
-        del Y2_tensor
-        iter = (x.shape[0] + bs - 1) // bs
-        for i in tqdm(range(iter)):
-            results = torch.mm(x[i*bs:(i+1)*bs,], y1)
-            results2 = torch.mm(x[i*bs:(i+1)*bs,], y2)
-            _, indices = torch.sort(results, descending=True)
-            if(i==0):
-              print(_[:5,:5])
-            _, indices2 = torch.sort(results2, descending=True)
-            
-            for j in range(bs):
-                try:
-                    tmp1.append(indices[j,:200].cpu().numpy())
-                    tmp2.append(indices2[j,:20].cpu().numpy())
-                    
-                except:
-                    break
-        pickle.dump(tmp1, f)
-        pickle.dump(tmp2, g)
+        del Y2_tensor        
+        for i in tqdm(range(x.shape[0])):
+            results = torch.mm(x[i:(i+1),], y1)
+            results2 = torch.mm(x[i:(i+1),], y2)
+            _, indices_song = torch.sort(results, descending=True)
+            _, indices_tag = torch.sort(results2, descending=True)
+            songs.append(indices_song[0,:200].cpu().numpy())
+            tags.append(indices_tag[0,:20].cpu().numpy())
+                                
+        pickle.dump(songs, f)
+        pickle.dump(tags, g)
         f.close()
         g.close()
 
@@ -487,3 +481,4 @@ def least_squares_cg(Cui, X, Y, regularization, num_threads=0, cg_steps=3):
             rsold = rsnew
 
         X[u] = x
+

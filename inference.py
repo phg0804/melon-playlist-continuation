@@ -20,7 +20,7 @@ class ArenaInferrer:
           new_songs_list.append(song)
       q['songs'] = new_songs_list
 
-  def ensemble(self, answers_list, song_param, tag_param):
+  def ensemble(self, answers_list, song_param1, song_param2):
     answers = []
     for i in range(len(answers_list[0])):
       tmp = {}
@@ -30,23 +30,23 @@ class ArenaInferrer:
       for k, ans in enumerate(answers_list):
         for n, song in enumerate(ans[i]['songs']):
           if song in tmp_song.keys():
-            tmp_song[song] += 1 / (n + song_param[k])
+            tmp_song[song] += 1 / (n + song_param1[k])
           else:
-            tmp_song[song] = 1 / (n + song_param[k])    
+            tmp_song[song] = 1 / (n + song_param2[k])    
         sorted_songs = sorted(tmp_song.items(), reverse=True, key=lambda _: _[1])
         sorted_songs = [k for (k, v) in sorted_songs]
 
         for n, tag in enumerate(ans[i]['tags']):
           if tag in tmp_tag.keys():
-            tmp_tag[tag] += 1 / (n + tag_param[k])
+            tmp_tag[tag] += 1 / (n + 15)
           else:
-            tmp_tag[tag] = 1 / (n + tag_param[k])    
+            tmp_tag[tag] = 1 / (n + 15)    
         sorted_tags = sorted(tmp_tag.items(), reverse=True, key=lambda _: _[1])
         sorted_tags = [k for (k, v) in sorted_tags]
 
       tmp['id'] = answers_list[0][i]['id']
-      tmp['songs'] = sorted_songs[:100]
-      tmp['tags'] = sorted_tags[:10]
+      tmp['songs'] = sorted_songs[:200]
+      tmp['tags'] = sorted_tags[:20]
       answers.append(tmp)
     
     for i, q in self.test.iterrows():
@@ -58,9 +58,9 @@ class ArenaInferrer:
 
     for i, q in enumerate(answers):
       if len(q['songs']) < 100:
-        answers[i]['songs'] += remove_seen(q['songs'], self.most_results.loc[i]['songs'])[:100-len(q['songs'])]
+        answers[i]['songs'] += remove_seen(q['songs'], self.w2v_results.loc[i]['songs'])[:100-len(q['songs'])]
       if len(q['tags']) < 10:
-        answers[i]['tags'] += remove_seen(q['tags'], self.most_results.loc[i]['tags'])[:10-len(q['tags'])]
+        answers[i]['tags'] += remove_seen(q['tags'], self.w2v_results.loc[i]['tags'])[:10-len(q['tags'])]
     for i, q in self.test.iterrows():
       if len(q['songs']) == 0:
         answers[i]['songs'] = self.w2v_results.loc[i]['songs'][:100]
@@ -77,15 +77,14 @@ class ArenaInferrer:
       answers3 = pickle.load(f)
 
     self.test = pd.read_json(test_fpath, encoding='UTF-8')    
-    self.w2v_results = pd.read_json('./omg2.json', encoding='UTF-8')
-    self.most_results = pd.read_json('./omg2.json', encoding='UTF-8')
+    self.w2v_results = pd.read_json('./w2v_local.json', encoding='UTF-8')
     self.song_meta = load_json("./res/song_meta.json")
     self.filter_future_songs(answers1, self.test)
     self.filter_future_songs(answers2, self.test)
     self.filter_future_songs(answers3, self.test)
 
     answers = self.ensemble([answers1, answers2, answers3], 
-                            [15, 30, 50], [2, 4, 6])
+                            [15, 30, 50], [18, 40, 110])
     write_json(answers, result_fpath)
 
   def infer(self, test_fpath, result_fpath):
@@ -103,3 +102,4 @@ if __name__ == "__main__":
   subprocess.call("pwd", shell=True)
 
   fire.Fire(ArenaInferrer)
+

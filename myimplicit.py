@@ -4,6 +4,7 @@ import argparse
 import codecs
 import logging
 import numpy as np
+import os
 import time
 import tqdm
 from scipy.sparse import csr_matrix
@@ -12,15 +13,16 @@ from implicit.als import AlternatingLeastSquares
 from implicit.nearest_neighbours import (BM25Recommender, CosineRecommender,
                                          bm25_weight)
 
-import arena_data as au
+import arena_util as au
 from myals import MyAlternatingLeastSquares
 
 
 log = logging.getLogger("implicit")
 
 
-def calculate_similar_playlists(output_filename='similar-playlist.txt',
+def calculate_similar_playlists(output_filename="similar-playlist.txt",
                                 model_name="als", 
+                                test_fpath="./res/test.json",
                                 K=2):
   # read in the input data file
   start = time.time()
@@ -42,7 +44,7 @@ def calculate_similar_playlists(output_filename='similar-playlist.txt',
   ratings = csr_matrix((np.array(scores, dtype=np.float32), 
                         (np.array(rows), np.array(cols))), 
                         shape = (num_row, num_col))
-
+  
   ratings.data = np.ones(len(ratings.data))
   log.info("read data file in %s", time.time() - start)
 
@@ -55,7 +57,13 @@ def calculate_similar_playlists(output_filename='similar-playlist.txt',
     ratings = (bm25_weight(ratings, B=0.9) * 5).tocsr()
 
   elif model_name == "myals":
-    model = MyAlternatingLeastSquares(factors=K)
+    song_meta = au.load_json('./res/song_meta.json')
+    num_song = len(song_meta)
+    del song_meta
+    model = MyAlternatingLeastSquares(num_song=num_song, 
+                                      num_tag=num_col-num_song, 
+                                      factors=K,
+                                      test_fpath=test_fpath    )
 
     # lets weight these models by bm25weight.
     log.debug("weighting matrix by bm25_weight")
