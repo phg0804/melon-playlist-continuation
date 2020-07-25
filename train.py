@@ -157,14 +157,14 @@ class ArenaTrainer:
         answers3 = self._get_ans()
         self._save_models(answers1, answers2, answers3)
 
-    def train(self, train_fname, test_fname, train2_fname=""):
+    def train(self, train_fname, test_fname, val_fname=""):
         try:
-            if not train_val_fname:
+            if not val_fname:
                 self._train(train_fname, test_fname)
             else:
                 new_train_fname = "./res/train_val.json"
                 train = load_json(train_fname)
-                val = load_json(test_fname)
+                val = load_json(val_fname)
                 write_json(train + val, "./../res/train_val.json")
                 self._train(new_train_fname, test_fname)
         except Exception as e:
