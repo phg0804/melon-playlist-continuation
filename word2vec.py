@@ -90,11 +90,7 @@ class Word2VecTrainer:
         self.id = id
         self.p2v_model.add(id, vec)
         
-<<<<<<< HEAD
     def _getresults(self, topn = 80, tag_filename = './w2v_tags.pkl'):
-=======
-    def _get_results(self, topn = 80):
->>>>>>> 7f26f5ae88fcc150ce27d66045d1527ee9a3b5d0
         print("extracting results")
         answers = []
         tags = []
@@ -152,11 +148,7 @@ class Word2VecTrainer:
         else:    
             self._get_w2v(save_model)
             
-<<<<<<< HEAD
         self._playlist2vec(song_weight, tag_weight, title_weight)
         self._getresults(topn, tag_filename)
-=======
-        self._playlist2vec(song_weight, tag_weight, title_weight) 
-        self._get_results(topn)
->>>>>>> 7f26f5ae88fcc150ce27d66045d1527ee9a3b5d0
+
         write_json(self.answers, "./results/w2v_results.json")
