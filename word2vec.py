@@ -47,8 +47,8 @@ class Word2VecTrainer:
         data = pd.concat([train, test])
         data = data.set_index('id')
 
-        self.song_dict = data['songs'].apply(lambda x : shuffle_list(123, x)).apply(lambda x : tostring(x)).to_dict()
-        self.tag_dict = data['tags'].apply(lambda x : shuffle_list(123, x)).to_dict()
+        self.song_dict = data['songs'].apply(lambda x : shuffle_list(x, 123)).apply(lambda x : tostring(x)).to_dict()
+        self.tag_dict = data['tags'].apply(lambda x : shuffle_list(x, 123)).to_dict()
         
         data = data.reset_index()
         self.total = data.progress_apply(lambda x : self.song_dict[x['id']] + self.tag_dict[x['id']] + preprocess_string(x['plylst_title'], self.custom_filters), axis = 1)
@@ -92,7 +92,7 @@ class Word2VecTrainer:
 
         self.p2v_model.add(id, vec)
         
-    def _getresults(self, topn = 80):
+    def _get_results(self, topn = 80):
         print("extracting results")
         answers = []
         tags = []
@@ -152,7 +152,6 @@ class Word2VecTrainer:
         else:    
             self._get_w2v(save_model)
             
-        self._playlist2vec(song_weight, tag_weight, title_weight)
-        self._getresults(topn)
+        self._playlist2vec(song_weight, tag_weight, title_weight) self._get_results(topn)
         write_json(self.answers, "./results/w2v_results.json")
 
