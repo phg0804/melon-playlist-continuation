@@ -1,4 +1,8 @@
-""" My Implicit Alternating Least Squares """
+""" 
+Revised Implicit Alternating Least Squares 
+Reference - https://github.com/benfred/implicit
+Only GPU version available 
+"""
 import functools
 import heapq
 import logging

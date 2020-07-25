@@ -18,7 +18,6 @@ class ArenaTrainer:
         num_song = len(song_meta)
         num_tag = len(self.tag2id.keys())
         del song_meta
-        
         N = sum(self.data['songs'].apply(len)) + sum(self.data['tags'].apply(len))
         maxrow = self.data['id'].max()
 
@@ -57,6 +56,7 @@ class ArenaTrainer:
             else:
                 similar_playlists[target_plylst] = [similar_plylst]
         f.close()
+
         if os.path.isfile("./similar-playlist.txt"):
            os.remove("./similar-playlist.txt")
 
@@ -80,11 +80,11 @@ class ArenaTrainer:
                   'id': self.w2v_results.loc[i]['id'],
                   'songs': self.w2v_results.loc[i]['songs'],
                   'tags': self.w2v_results.loc[i]['tags']
-                })     
+                })
+
         return ans
 
     def _get_ans_myals(self):
-        ans = []
         with open("./predicted_songs.pkl", 'rb') as f:
             songs_list = pickle.load(f)
         with open("./predicted_tags.pkl", 'rb') as f:
@@ -96,6 +96,7 @@ class ArenaTrainer:
 
         cnt = 0
         ans = []
+
         for i, q in tqdm(self.test.iterrows()):
             if q['songs'] != [] or q['tags'] != []:
                 ans.append({
@@ -104,13 +105,13 @@ class ArenaTrainer:
                     'tags': remove_seen(q['tags'], [self.id2tag[_] for _ in tags_list[cnt]])[:20],
                 })
                 cnt += 1
-            
             else:
                 ans.append({
                   'id': self.w2v_results.loc[i]['id'],
                   'songs': self.w2v_results.loc[i]['songs'],
                   'tags': self.w2v_results.loc[i]['tags'],
                 })
+
         return ans
 
     def _save_models(self, *args):
@@ -123,21 +124,21 @@ class ArenaTrainer:
         self.test = pd.read_json(test_fname, encoding='UTF-8')
         self.data = pd.concat([self.train, self.test])
         
-        '''
         myw2v = Word2VecTrainer(train_fname=train_fname, 
                                 test_fname=test_fname, 
-                                most_results_fname="./arena_data/results/result.json")
+                                most_results_fname="./arena_data/results/results.json")
         myw2v.run(topn=80, song_weight=1, tag_weight=2, 
                   title_weight=4, save_model=True)
-        '''
 
         tag_set = set([])
+
         for i, q in self.train.iterrows():
           for s in q['tags']:
             tag_set.add(s)
         for i, q in self.test.iterrows():
           for s in q['tags']:
             tag_set.add(s)
+
         self.tag2id = {x : i for i, x in enumerate(list(tag_set))}
         self.id2tag = {i : x for i, x in enumerate(list(tag_set))}
       
@@ -156,9 +157,16 @@ class ArenaTrainer:
         answers3 = self._get_ans()
         self._save_models(answers1, answers2, answers3)
 
-    def train(self, train_fname, test_fname):
+    def train(self, train_fname, test_fname, train2_fname=""):
         try:
-            self._train(train_fname, test_fname)
+            if not train_val_fname:
+                self._train(train_fname, test_fname)
+            else:
+                new_train_fname = "./res/train_val.json"
+                train = load_json(train_fname)
+                val = load_json(test_fname)
+                write_json(train + val, "./../res/train_val.json")
+                self._train(new_train_fname, test_fname)
         except Exception as e:
             print(e)
 
