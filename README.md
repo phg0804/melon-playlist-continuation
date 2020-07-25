@@ -50,8 +50,9 @@ $> python train.py train \
 | model1.pkl | myALS | 120MB |
 | model2.pkl | BM25 | 12MB |
 | model3.pkl | BM25 | 12MB |
-| w2v_results.pkl | w2v | ~MB |
-| w2v_model.pkl | w2v | TODOMB | 
+| w2v_results.pkl | 20MB | 
+| w2v_tags.pkl | w2v | 40MB |
+| w2v_model.pkl | w2v | 210MB | 
 ~~앵버가 추가~~
 
 train.py의 최종 결과물은 model1 ~ model4 파일입니다.
