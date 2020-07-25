@@ -138,7 +138,7 @@ class Word2VecTrainer:
         print("tags written to " + tag_filename)
         
     def run(self, topn=80, with_w2v_model=False, w2v_model=None, save_model=True, 
-            song_weight=1, tag_weight=1, title_weight=1, tag_filename = 'w2v_tags.pkl'):
+            song_weight=1, tag_weight=1, title_weight=1, tag_filename = 'w2v_tags.pkl', write_results = True):
         self._get_dic(self.train, self.test, self.song_meta)
         
         if with_w2v_model :
@@ -149,6 +149,7 @@ class Word2VecTrainer:
             self._get_w2v(save_model)
             
         self._playlist2vec(song_weight, tag_weight, title_weight)
-        self._getresults(topn, tag_filename)
-
-        write_json(self.answers, "./results/w2v_results.json")
+        self._getresults(topn, tag_filename, write_results)
+        
+        if(write_results):
+            write_json(self.answers, "./results/w2v_results.json")
