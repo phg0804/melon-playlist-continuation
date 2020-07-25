@@ -50,7 +50,9 @@ $> python train.py train \
 | model1.pkl | myALS | 120MB |
 | model2.pkl | BM25 | 12MB |
 | model3.pkl | BM25 | 12MB |
-| model4.pkl | w2v | TODOMB | 
+| w2v_results.pkl | w2v | ~MB |
+| w2v_model.pkl | w2v | TODOMB | 
+~~앵버가 추가~~
 
 train.py의 최종 결과물은 model1 ~ model4 파일입니다.
 
@@ -59,17 +61,18 @@ inference.py을 실행하면 res/results.json 결과 파일이 생성됩니다.
 
 ```bash
 $> python inference.py infer \
-   --test_fpath=res/test.json \
-   --result_fpath=res/results.json
+   --test_fname=res/test.json \
+   --result_fname=res/results.json
 ``` 
 TODO
+
 ## 2. 알고리즘
 
-### 2.1. ALS
+### 2.1. ALS, myALS
 
-### 2.1.1 myALS
-### 2.1.2 ALS
 
 ### 2.2. BM25, Cosine
 
 ### 2.3 w2v
+
+### 2.4. Ensemble
