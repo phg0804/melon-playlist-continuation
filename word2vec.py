@@ -61,7 +61,7 @@ class Word2VecTrainer:
         print("Embedding completed. Took " + "{:.2f}".format((time2 - time1)/60) + "min ")
         
         if save_model:
-            with open('w2v_model.pkl', 'wb') as f:
+            with open('./w2v_model.pkl', 'wb') as f:
                 pickle.dump(self.w2v_model, f)
         
     def _playlist2vec(self, song_weight = 1, tag_weight = 1, title_weight = 1):
@@ -93,7 +93,7 @@ class Word2VecTrainer:
         self.ID = ID
         self.p2v_model.add(id, vec)
         
-    def _getresults(self, topn = 80):
+    def _getresults(self, topn = 80, tag_filename = './w2v_tags.pkl'):
         print("extracting results")
         answers = []
         tags = []
@@ -138,12 +138,12 @@ class Word2VecTrainer:
         self.answers = answers
         self.tags = tags
         
-        with open("w2v_tags.pkl", 'wb') as f:
+        with open(tag_filename, 'wb') as f:
             pickle.dump(self.tags, f)
-        print("tags written to w2v_tags.pkl")
+        print("tags written to " + tag_filename)
         
     def run(self, topn=80, with_w2v_model=False, w2v_model=None, save_model=True, 
-            song_weight=1, tag_weight=1, title_weight=1):
+            song_weight=1, tag_weight=1, title_weight=1, tag_filename = 'w2v_tags.pkl'):
         self._get_dic(self.train, self.test, self.song_meta)
         
         if with_w2v_model :
@@ -154,6 +154,6 @@ class Word2VecTrainer:
             self._get_w2v(save_model)
             
         self._playlist2vec(song_weight, tag_weight, title_weight)
-        self._getresults(topn)
+        self._getresults(topn, tag_filename)
         write_json(self.answers, "./results/w2v_results.json")
 
