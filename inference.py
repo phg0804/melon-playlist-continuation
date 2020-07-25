@@ -58,16 +58,16 @@ class ArenaInferrer:
 
     for i, q in enumerate(answers):
       if len(q['songs']) < 100:
-        answers[i]['songs'] += remove_seen(q['songs'], self.w2v_results.loc[i]['songs'])[:100-len(q['songs'])]
+        answers[i]['songs'] += remove_seen(q['songs'], self.w2v_results[i]['songs'])[:100-len(q['songs'])]
       if len(q['tags']) < 10:
-        answers[i]['tags'] += remove_seen(q['tags'], self.w2v_results.loc[i]['tags'])[:10-len(q['tags'])]
+        answers[i]['tags'] += remove_seen(q['tags'], self.w2v_results[i]['tags'])[:10-len(q['tags'])]
     for i, q in self.test.iterrows():
       if len(q['songs']) == 0:
-        answers[i]['songs'] = self.w2v_results.loc[i]['songs'][:100]
+        answers[i]['songs'] = self.w2v_results[i]['songs'][:100]
 
     return answers
     
-  def _infer(self, test_fpath, result_fpath):
+  def _infer(self, test_fname, result_fname):
     # Load models
     with open("./model1.pkl", 'rb') as f:
       answers1 = pickle.load(f)
@@ -75,21 +75,21 @@ class ArenaInferrer:
       answers2 = pickle.load(f)
     with open("./model3.pkl", 'rb') as f:
       answers3 = pickle.load(f)
-
-    self.test = pd.read_json(test_fpath, encoding='UTF-8')    
-    self.w2v_results = pd.read_json('./w2v_local.json', encoding='UTF-8')
+    
+    self.test = pd.read_json(test_fname, encoding='UTF-8')
+    self.w2v_results = load_json("./arena_data/results/w2v_results.json")
     self.song_meta = load_json("./res/song_meta.json")
     self.filter_future_songs(answers1, self.test)
     self.filter_future_songs(answers2, self.test)
     self.filter_future_songs(answers3, self.test)
-
+    
     answers = self.ensemble([answers1, answers2, answers3], 
                             [15, 30, 50], [18, 40, 110])
-    write_json(answers, result_fpath)
+    write_json(answers, result_fname)
 
-  def infer(self, test_fpath, result_fpath):
+  def infer(self, test_fname, result_fname):
     try:
-      self._infer(test_fpath, result_fpath)
+      self._infer(test_fname, result_fname)
     except Exception as e:
       print(e)  
 
@@ -102,4 +102,3 @@ if __name__ == "__main__":
   subprocess.call("pwd", shell=True)
 
   fire.Fire(ArenaInferrer)
-

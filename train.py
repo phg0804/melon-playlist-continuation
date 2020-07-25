@@ -4,6 +4,7 @@ import pandas as pd
 import pickle
 import time
 from tqdm import tqdm
+from word2vec import Word2VecTrainer
 
 from arena_util import load_json, remove_seen
 
@@ -117,11 +118,19 @@ class ArenaTrainer:
             with open("./model" + str(i + 1) + ".pkl", 'wb') as f:
                 pickle.dump(answers, f)        
           
-    def _train(self, train_fpath, test_fpath):
-        self.train = pd.read_json(train_fpath, encoding='UTF-8')
-        self.test = pd.read_json(test_fpath, encoding='UTF-8')
+    def _train(self, train_fname, test_fname):
+        self.train = pd.read_json(train_fname, encoding='UTF-8')
+        self.test = pd.read_json(test_fname, encoding='UTF-8')
         self.data = pd.concat([self.train, self.test])
         
+        '''
+        myw2v = Word2VecTrainer(train_fname=train_fname, 
+                                test_fname=test_fname, 
+                                most_results_fname="./arena_data/results/result.json")
+        myw2v.run(topn=80, song_weight=1, tag_weight=2, 
+                  title_weight=4, save_model=True)
+        '''
+
         tag_set = set([])
         for i, q in self.train.iterrows():
           for s in q['tags']:
@@ -134,14 +143,12 @@ class ArenaTrainer:
       
         self._make_coo()
         
-        # TODO
-        # w2v_results 만드는 코드
-        self.w2v_results = pd.read_json("./w2v_results.json", encoding='UTF-8')
+        self.w2v_results = pd.read_json("./arena_data/results/w2v_results.json", encoding='UTF-8')
         self.data = self.data.set_index('id')
         self.song_dict = self.data['songs'].to_dict()
         self.tag_dict = self.data['tags'].to_dict()
         
-        myimplicit.calculate_similar_playlists(model_name="myals", K=1024, test_fpath=test_fpath)
+        myimplicit.calculate_similar_playlists(model_name="myals", K=1024, test_fname=test_fname)
         answers1 = self._get_ans_myals()        
         myimplicit.calculate_similar_playlists(model_name="bm25", K=2)
         answers2 = self._get_ans()
@@ -149,9 +156,9 @@ class ArenaTrainer:
         answers3 = self._get_ans()
         self._save_models(answers1, answers2, answers3)
 
-    def train(self, train_fpath, test_fpath):
+    def train(self, train_fname, test_fname):
         try:
-            self._train(train_fpath, test_fpath)
+            self._train(train_fname, test_fname)
         except Exception as e:
             print(e)
 
@@ -164,4 +171,3 @@ if __name__ == "__main__":
     subprocess.call("pwd", shell=True)
 
     fire.Fire(ArenaTrainer)
-

@@ -1,4 +1,4 @@
-""" Implicit Alternating Least Squares """
+""" My Implicit Alternating Least Squares """
 import functools
 import heapq
 import logging
@@ -75,7 +75,7 @@ class MyAlternatingLeastSquares(MatrixFactorizationBase):
                  use_cg=True, use_gpu=implicit.cuda.HAS_CUDA,
                  iterations=15, calculate_training_loss=False,
                  validate_step=-1, validate_N=30, validate_proportion=0.05,
-                 num_threads=0, test_fpath="./res/test.json"):
+                 num_threads=0, test_fname="./res/test.json"):
         super(MyAlternatingLeastSquares, self).__init__()
         # currently there are some issues when training on the GPU when some of the warps
         # don't have full factors. Round up to be warp aligned.
@@ -92,7 +92,7 @@ class MyAlternatingLeastSquares(MatrixFactorizationBase):
         self.regularization = regularization
         self.num_song = num_song
         self.num_tag = num_tag
-        self.test_fpath = test_fpath
+        self.test_fname = test_fname
 
         # options on how to fit the model
         self.dtype = dtype
@@ -265,7 +265,7 @@ class MyAlternatingLeastSquares(MatrixFactorizationBase):
             log.info("Final training loss %.4f", loss)
 
         mask = []
-        test = pd.read_json(self.test_fpath, encoding='UTF-8')
+        test = pd.read_json(self.test_fname, encoding='UTF-8')
         for i, q in test.iterrows():
             if(q['songs'] != [] or q['tags'] != []):
                 mask.append(q['id'])
