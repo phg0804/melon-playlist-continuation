@@ -35,18 +35,19 @@ class ArenaInferrer:
             tmp_song[song] = 1 / (n + song_param2[k])    
         sorted_songs = sorted(tmp_song.items(), reverse=True, key=lambda _: _[1])
         sorted_songs = [k for (k, v) in sorted_songs]
-
+        '''
         for n, tag in enumerate(ans[i]['tags']):
           if tag in tmp_tag.keys():
-            tmp_tag[tag] += 1 / (n + 15)
+            tmp_tag[tag] += 1 / (n + 100)
           else:
-            tmp_tag[tag] = 1 / (n + 15)    
+            tmp_tag[tag] = 1 / (n + 100)    
         sorted_tags = sorted(tmp_tag.items(), reverse=True, key=lambda _: _[1])
         sorted_tags = [k for (k, v) in sorted_tags]
+        '''
 
       tmp['id'] = answers_list[0][i]['id']
       tmp['songs'] = sorted_songs[:200]
-      tmp['tags'] = sorted_tags[:20]
+      tmp['tags'] = [str(_) for _ in range(10)]
       answers.append(tmp)
     
     for i, q in self.test.iterrows():

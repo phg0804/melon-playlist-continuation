@@ -22,12 +22,11 @@ def shuffle_list(lst, seed=0):
 def tostring(lst):
     return [str(x) for x in lst]
 
-    
 class Word2VecTrainer:
     def __init__(
       self, 
       train_fname="./res/train.json",
-      test_fname = "./res/test.json",
+      test_fname="./res/test.json",
       most_results_fname="./arena_data/results/result.json"
     ):
         self.train = pd.read_json(train_fname, encoding='UTF-8')
@@ -46,10 +45,8 @@ class Word2VecTrainer:
         tqdm.pandas()
         data = pd.concat([train, test])
         data = data.set_index('id')
-
         self.song_dict = data['songs'].apply(lambda x : shuffle_list(x, 123)).apply(lambda x : tostring(x)).to_dict()
         self.tag_dict = data['tags'].apply(lambda x : shuffle_list(x, 123)).to_dict()
-        
         data = data.reset_index()
         self.total = data.progress_apply(lambda x : self.song_dict[x['id']] + self.tag_dict[x['id']] + preprocess_string(x['plylst_title'], self.custom_filters), axis = 1)
 
@@ -89,8 +86,8 @@ class Word2VecTrainer:
             if type(tmp_vec) != int:
                 id.append(str(q['id']))  
                 vec.append(tmp_vec)
-         
-        self.ID = ID
+
+        self.id = id
         self.p2v_model.add(id, vec)
         
     def _get_results(self, topn = 80):
@@ -108,14 +105,12 @@ class Word2VecTrainer:
                 
                 get_song = list(pd.value_counts(get_song)[:200].index)
                 get_song = [int(x) for x in get_song]
-                
                 tags.append(get_tag)
-                
                 updt_date = date2int(q['updt_date'])
                 song_date = self.song_meta.loc[get_song, 'issue_date']
                 get_song = pd.Series(get_song)[[x <= updt_date for x in song_date]] 
-                
                 get_tag = list(pd.value_counts(get_tag)[:20].index)
+
                 answers.append({
                     "id": q["id"],
                     "songs": remove_seen(q["songs"], get_song)[:100],
@@ -156,4 +151,3 @@ class Word2VecTrainer:
         self._playlist2vec(song_weight, tag_weight, title_weight) 
         self._get_results(topn)
         write_json(self.answers, "./results/w2v_results.json")
-
