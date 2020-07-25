@@ -6,7 +6,7 @@ import time
 from tqdm import tqdm
 from word2vec import Word2VecTrainer
 
-from arena_util import load_json, remove_seen
+from arena_util import load_json, remove_seen, write_json
 
 import myimplicit
 from myimplicit2 import calculate_similar_movies
@@ -118,7 +118,7 @@ class ArenaTrainer:
     def _save_models(self, *args):
        
         for i, answers in enumerate(args):
-            with open("./model" + str(i + 1) + ".pkl", 'wb') as f:
+            with open("./model_song" + str(i + 1) + ".pkl", 'wb') as f:
                 pickle.dump(answers, f)        
             
     def _train(self, train_fname, test_fname):

@@ -136,11 +136,11 @@ class ArenaInferrer:
   
   def _infer(self, test_fname, result_fname):
     # Load models
-    with open("./model1.pkl", 'rb') as f:
+    with open("./model_song1.pkl", 'rb') as f:
       answers1 = pickle.load(f)
-    with open("./model2.pkl", 'rb') as f:
+    with open("./model_song2.pkl", 'rb') as f:
       answers2 = pickle.load(f)
-    with open("./model3.pkl", 'rb') as f:
+    with open("./model_song3.pkl", 'rb') as f:
       answers3 = pickle.load(f)
     
     self.test = pd.read_json(test_fname, encoding='UTF-8')
