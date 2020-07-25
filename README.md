@@ -1,5 +1,5 @@
 # Melon Playlist Continuation
-카카오 아레나 Melon Playlist Continuation 대회에 참여한 내용을 정리한 리파지토리입니다. 
+카카오 아레나 Melon Playlist Continuation 대회에 참여한 내용을 정리한 repository입니다. 
 
 ## 필요 모듈
 - implicit
@@ -29,13 +29,13 @@ res 디렉토리에 다운로드 받습니다.
 ``` 
 
 ### 1.1. 학습 데이터 생성 (TODO)
-train + val 합치는거 TODO
+train.json과 val.json을 합친 json파일을 불러옵니다. 두 json 학습 데이터를 merge하는 방법은 다음과 같습니다.
 
 ```bash
 $> python TODO.py
 ``` 
-생성 결과 파일은 ./res/train_val.json 입니다. 
-이 파일은 res/train.json과 res/val.json을 모델의 인풋으로 넣기 위해 하나의 json파일로 합친 것입니다.
+
+이를 통해 생성된 파일은 ./res/train_val.json 입니다. 
 
 ### 1.2. 모델 학습 (이것저것 TODO)
 
