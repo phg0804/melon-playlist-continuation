@@ -24,12 +24,11 @@ res 디렉토리에 다운로드 받습니다.
    ├── train.json
    ├── val.json
    ├── test.json
-   ├── song_meta.json
-   └── genre_gn_all.json
+   └── song_meta.json
 ``` 
 
 
-### 1.1. 모델 학습 (이것저것 TODO)
+### 1.1. 모델 학습
 
 ```bash
 $> python train.py train \
