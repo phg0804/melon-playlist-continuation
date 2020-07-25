@@ -37,15 +37,28 @@ $> python train.py train \
 ```
 위 command를 실행하면 다음과 같은 파일들이 생성됩니다.
 
+~~추가부탁~~
+
 | model | 설명 | 용량 |
 |---|:---:|---:|
+| coo.txt | preprocessing | 빈칸 |
 | model1.pkl | myALS | 120MB |
 | model2.pkl | BM25 | 12MB |
 | model3.pkl | BM25 | 12MB |
-| w2v_results.pkl | 20MB | 
 | w2v_tags.pkl | w2v | 40MB |
-| w2v_model.pkl | w2v | 210MB | 
-~~앵버가 추가~~
+| w2v_model.pkl | w2v | 210MB |
+| model_tag_w1.pkl | w2v | 빈칸 |
+| model_tag_w2.pkl | w2v | 빈칸 |
+| model_tag_w3.pkl | w2v | 빈칸 |
+| model_tag1.txt | cosine | 빈칸 |
+| model_tag2.txt | bm25 | 빈칸 |
+| model_tag3.txt | als | 빈칸 |
+| model_tag4.txt | cosine | 빈칸 |
+| model_tag5.txt | bm25 | 빈칸 |
+| model_tag6.txt | als | 빈칸 |
+| model_tag7.txt | cosine | 빈칸 |
+| model_tag8.txt | bm25 | 빈칸 |
+| w2v_results.pkl | 20MB | 
 
 생성되는 파일들의 디렉토리는 다음과 같습니다.
 
@@ -96,14 +109,26 @@ ALS와 bm25, cosine은 implicit의 library에 있는 것을 사용하였고, mya
 
 ### 2.1. ALS, myALS
 
-다음과 같은 모델들에 대하여 song을 예측하였습니다.
+다음의 모델들에 대하여 song을 예측하였습니다.
 1. model1.pkl (K = 1024, myALS)
+
+다음의 모델들에 대하여 song을 예측하였습니다.
+1. model_tag3.txt (als)
+2. model_tag6.txt (als)
 
 ### 2.2. BM25, Cosine
 
-다음과 같은 모델들에 대하여 song을 예측하였습니다.
-1. model2.pkl (K = 2, BM25)
-2. model3.pkl (K = 6, BM25)
+다음의 모델들에 대하여 song을 예측하였습니다.
+1. model2.pkl (BM25)
+2. model3.pkl (BM25)
+
+다음의 모델들에 대하여 태그를 예측하였습니다.
+1. model_tag1.txt (cosine)
+2. model_tag4.txt (cosine)
+3. model_tag7.txt (cosine)
+4. model_tag2.txt (BM25)
+5. model_tag5.txt (BM25)
+6. model_tag8.txt (BM25)
 
 ### 2.3 w2v
 
