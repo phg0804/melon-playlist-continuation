@@ -22,6 +22,35 @@ class ArenaInferrer:
 
   def ensemble(self, answers_list, song_param1, song_param2):
     answers = []
+    similar_playlist_list = []
+    fname_list = ["model_tag1.txt", "model_tag2.txt", "model_tag3.txt", "model_tag4.txt", 
+                "model_tag5.txt", "model_tag6.txt", "model_tag7.txt", "model_tag8.txt"]
+    with open('model_tag_w1.pkl', 'rb') as f: 
+      tag_ld_w2v_80 = pickle.load(f)
+    with open('model_tag_w2.pkl', 'rb') as f: 
+      tag_ld_w2v_100 = pickle.load(f)
+    with open('model_tag_w3.pkl', 'rb') as f: 
+      tag_ld_w2v_150 = pickle.load(f)
+    
+    for fname in fname_list :
+      similar_tmp = {}
+      with open(fname, 'r') as f :
+        try :
+          while True:
+            a, b = f.readline().split()
+            a = int(a)
+            b = int(b)
+            if a==b:
+              continue
+            try:
+              similar_tmp[a].append(b)
+            except:
+              similar_tmp[a] = [b]
+        except:
+          print("end")
+      similar_playlist_list.append(similar_tmp)
+
+    
     for i in range(len(answers_list[0])):
       tmp = {}
       tmp_song = {}
@@ -44,19 +73,56 @@ class ArenaInferrer:
         sorted_tags = sorted(tmp_tag.items(), reverse=True, key=lambda _: _[1])
         sorted_tags = [k for (k, v) in sorted_tags]
         '''
-
       tmp['id'] = answers_list[0][i]['id']
       tmp['songs'] = sorted_songs[:200]
       tmp['tags'] = [str(_) for _ in range(10)]
       answers.append(tmp)
     
+    with open("tag_dict.pkl", "rb") as f:
+        tag_dict = pickle.load(f)
+    
     for i, q in self.test.iterrows():
-      answers[i] = {
-        "id": q["id"],
-        "songs": remove_seen(q["songs"], answers[i]['songs'])[:100],
-        "tags": remove_seen(q["tags"], answers[i]['tags'])[:10]
-      }
+        
+      try:
+        get_song = []
+        get_tag = []
 
+        for s_l in similar_playlist_list :
+          most_id = s_l[q['id']]
+          for ID in most_id:
+              get_tag += tag_dict[int(ID)]
+        get_tag += tag_ld_w2v_100[i]
+        get_tag += tag_ld_w2v_100[i]
+        get_tag += tag_ld_w2v_100[i]
+        get_tag += tag_ld_w2v_80[i]
+        get_tag += tag_ld_w2v_80[i]
+        get_tag += tag_ld_w2v_80[i]
+        get_tag += tag_ld_w2v_80[i]
+        get_tag += tag_ld_w2v_150[i]
+        get_tag += tag_ld_w2v_150[i]
+        
+        import sys
+        print sys.getsizeof(get_tag)
+        
+        get_tag = list(pd.value_counts(get_tag).index)
+        get_tag = remove_seen(q["tags"], get_tag)
+
+        if len(get_tag)!= 10 :
+          get_tag += remove_seen(get_tag, self.w2v_results[i]['tags'])[:10-len(get_tag)]
+
+        answers[i] = {
+          "id": q["id"],
+          "songs": remove_seen(q["songs"], answers[i]['songs'])[:100],
+          "tags": remove_seen(q["tags"], get_tag)[:10]
+        }
+    
+      except KeyError:
+        answers[i] = {
+          "id": q["id"],
+          "songs": remove_seen(q["songs"], answers[i]['songs'])[:100],
+          "tags": remove_seen(q["tags"], self.w2v_results[i]['tags'])[:10]
+        }
+       
     for i, q in enumerate(answers):
       if len(q['songs']) < 100:
         answers[i]['songs'] += remove_seen(q['songs'], self.w2v_results[i]['songs'])[:100-len(q['songs'])]
@@ -67,7 +133,7 @@ class ArenaInferrer:
         answers[i]['songs'] = self.w2v_results[i]['songs'][:100]
 
     return answers
-    
+  
   def _infer(self, test_fname, result_fname):
     # Load models
     with open("./model1.pkl", 'rb') as f:
@@ -91,6 +157,7 @@ class ArenaInferrer:
   def infer(self, test_fname, result_fname):
     try:
       self._infer(test_fname, result_fname)
+      print("The result is successfully generated")
     except Exception as e:
       print(e)  
 

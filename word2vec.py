@@ -27,7 +27,7 @@ class Word2VecTrainer:
       self, 
       train_fname="./res/train.json",
       test_fname="./res/test.json",
-      most_results_fname="./arena_data/results/result.json"
+      most_results_fname="./arena_data/results/results.json"
     ):
         self.train = pd.read_json(train_fname, encoding='UTF-8')
         self.test = pd.read_json(test_fname, encoding='UTF-8')
@@ -149,7 +149,7 @@ class Word2VecTrainer:
             self._get_w2v(save_model)
             
         self._playlist2vec(song_weight, tag_weight, title_weight)
-        self._getresults(topn, tag_filename, write_results)
+        self._getresults(topn, tag_filename)
         
         if(write_results):
             write_json(self.answers, "./results/w2v_results.json")
