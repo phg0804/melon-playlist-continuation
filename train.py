@@ -6,7 +6,7 @@ import time
 from tqdm import tqdm
 from word2vec import Word2VecTrainer
 
-from arena_util import load_json, remove_seen
+from arena_util import load_json, remove_seen, write_json
 
 import myimplicit
 
