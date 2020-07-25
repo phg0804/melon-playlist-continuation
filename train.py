@@ -116,7 +116,7 @@ class ArenaTrainer:
 
     def _save_models(self, *args):
         for i, answers in enumerate(args):
-            with open("./model" + str(i + 1) + ".pkl", 'wb') as f:
+            with open("./model_song" + str(i + 1) + ".pkl", 'wb') as f:
                 pickle.dump(answers, f)        
           
     def _train(self, train_fname, test_fname):
