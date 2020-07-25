@@ -66,7 +66,7 @@ class Word2VecTrainer:
         
     def _playlist2vec(self, song_weight = 1, tag_weight = 1, title_weight = 1):
         self.p2v_model = WordEmbeddingsKeyedVectors(self.size)
-        id = []   
+        ID = []   
         vec = []
         for index, q in tqdm(pd.concat([self.train, self.test]).iterrows()):
             tmp_vec = 0
@@ -87,9 +87,10 @@ class Word2VecTrainer:
                     pass
 
             if type(tmp_vec) != int:
-                id.append(str(q['id']))  
+                ID.append(str(q['id']))  
                 vec.append(tmp_vec)
-
+         
+        self.ID = ID
         self.p2v_model.add(id, vec)
         
     def _get_results(self, topn = 80):
@@ -97,7 +98,7 @@ class Word2VecTrainer:
         answers = []
         tags = []
         for index, q in tqdm(self.test.iterrows()):
-            try:
+            if str(q['id']) in self.ID
                 most_id = [x[0] for x in self.p2v_model.most_similar(str(q['id']), topn=topn)]
                 get_song = []
                 get_tag = []
@@ -120,7 +121,7 @@ class Word2VecTrainer:
                     "songs": remove_seen(q["songs"], get_song)[:100],
                     "tags": remove_seen(q["tags"], get_tag)[:10],
                 })
-            except KeyError:
+            else:
                 tags.append([])
                 answers.append({
                   "id": self.most_results.loc[index]["id"],
