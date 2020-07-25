@@ -5,8 +5,15 @@
 #include <string>
 #include <time.h>
 #include <fstream>
+<<<<<<< HEAD
 #include "eigen3/Eigen/Dense"
 #include "json/json.h"
+=======
+#include <eigen3/Eigen/Dense>
+#include "jsoncpp/json.h"
+#include <iomanip>
+#include <omp.h>
+>>>>>>> e0aaa9a8716f5cea64cc20c7123671f04eb01c28
 
 using namespace std;
 using namespace Eigen;
@@ -146,68 +153,94 @@ public:
     }
 
     void train_epoch() {
-        clock_t starttime;
-        double puf, qif, numerator, denominator;
-        vector<double> rui_hat_f, riu_hat_f;
+        //clock_t starttime;
+        double puf, qif, starttime;
 
         // train user factors
-        starttime = clock();
+        //starttime = clock();
+        /*
+        starttime = omp_get_wtime();
         MatrixXd Sq(num_factor, num_factor);
         Sq = Q.transpose() * Q;
-        for(int u=0;u<P.rows();u++) {
-            for(int f=0;f<num_factor;f++) {
-                rui_hat_f.resize(col_num[u]);
-                numerator = P(u, f) * Sq(f, f) - P.row(u).dot(Sq.row(f));
-                denominator = Sq(f, f) + lambda;
-                for(int i_ind=0;i_ind<col_num[u];i_ind++) {
-                    qif = Q(rui_hat[u][i_ind].ind, f);
-                    rui_hat_f[i_ind] = rui_hat[u][i_ind].val - P(u, f) * qif;
-                    numerator += (1 + confidence - confidence * rui_hat_f[i_ind]) * qif;
-                    denominator += confidence * qif * qif;
-                }
-                P(u, f) = numerator / denominator;
-                for(int i_ind=0;i_ind<col_num[u];i_ind++) {
-                    qif = Q(rui_hat[u][i_ind].ind, f);
-                    rui_hat[u][i_ind].dual->val = rui_hat[u][i_ind].val \
-                                                = P(u, f) * qif + rui_hat_f[i_ind]; 
-                }
-            }
-        }
+        #pragma omp parallel
+		{
+			#pragma omp for
+			for(int u=0;u<P.rows();u++) {
+				double numerator = 0, denominator = 0;
+				vector<double> rui_hat_f, riu_hat_f;
+				for(int f=0;f<num_factor;f++) {
+					rui_hat_f.resize(col_num[u]);
+					numerator = P(u, f) * Sq(f, f) - P.row(u).dot(Sq.row(f));
+					denominator = Sq(f, f) + lambda;
+					for(int i_ind=0;i_ind<col_num[u];i_ind++) {
+						qif = Q(rui_hat[u][i_ind].ind, f);
+						rui_hat_f[i_ind] = rui_hat[u][i_ind].val - P(u, f) * qif;
+						numerator += (1 + confidence - confidence * rui_hat_f[i_ind]) * qif;
+						denominator += confidence * qif * qif;
+					}
+					P(u, f) = numerator / denominator;
+					for(int i_ind=0;i_ind<col_num[u];i_ind++) {
+						qif = Q(rui_hat[u][i_ind].ind, f);
+						rui_hat[u][i_ind].dual->val = rui_hat[u][i_ind].val \
+													= P(u, f) * qif + rui_hat_f[i_ind]; 
+					}
+				}
+			}
+		}
         printf("Updating P took ");
-        printf("%.2lfs.\n", (double)(clock() - starttime) / CLOCKS_PER_SEC);
+        printf("%.2lfs.\n", omp_get_wtime() - starttime);
         fflush(stdout);
+        */
+        FILE *fp = fopen("user.txt", "r");
+        for(int u=0;u<P.rows();u++) {
+        	for(int i=0;i<100;i++) {
+        		float x;
+        		fscanf(fp, "%f", &x);
+        		P(u,i) = x;
+			}
+		}
+		cout << P.row(0) << endl;
+		fclose(fp);
 
         // train item factors
-        starttime = clock();
+        //starttime = clock();
+        starttime = omp_get_wtime();
         MatrixXd Sp(num_factor, num_factor);
         Sp = P.transpose() * P;
-        for(int i=0;i<Q.rows();i++) {
-            for(int f=0;f<num_factor;f++) {
-                riu_hat_f.resize(row_num[i]);
-                numerator = Q(i, f) * Sp(f, f) - Q.row(i).dot(Sp.row(f));
-                denominator = Sp(f, f) + lambda;
-                for(int u_ind=0; u_ind<row_num[i]; u_ind++) {
-                    puf = P(riu_hat[i][u_ind].ind, f);
-                    riu_hat_f[u_ind] = riu_hat[i][u_ind].val - Q(i, f) * puf;
-                    numerator += (1 + confidence - confidence * riu_hat_f[u_ind]) * puf;
-                    denominator += confidence * puf * puf;
-                }
-                Q(i, f) = numerator/denominator;
-                for(int u_ind=0;u_ind<row_num[i];u_ind++) {
-                    puf = P(riu_hat[i][u_ind].ind, f);
-                    riu_hat[i][u_ind].dual->val = riu_hat[i][u_ind].val \
-                                                = riu_hat_f[u_ind] + Q(i, f) * puf;
-                }
-            }
-        }
+        #pragma omp parallel
+		{
+			#pragma omp for
+			for(int i=0;i<Q.rows();i++) {
+				double numerator = 0, denominator = 0;
+				vector<double> rui_hat_f, riu_hat_f;
+				for(int f=0;f<num_factor;f++) {
+					riu_hat_f.resize(row_num[i]);
+					numerator = Q(i, f) * Sp(f, f) - Q.row(i).dot(Sp.row(f));
+					denominator = Sp(f, f) + lambda;
+					for(int u_ind=0; u_ind<row_num[i]; u_ind++) {
+						puf = P(riu_hat[i][u_ind].ind, f);
+						riu_hat_f[u_ind] = riu_hat[i][u_ind].val - Q(i, f) * puf;
+						numerator += (1 + confidence - confidence * riu_hat_f[u_ind]) * puf;
+						denominator += confidence * puf * puf;
+					}
+					Q(i, f) = numerator/denominator;
+					for(int u_ind=0;u_ind<row_num[i];u_ind++) {
+						puf = P(riu_hat[i][u_ind].ind, f);
+						riu_hat[i][u_ind].dual->val = riu_hat[i][u_ind].val \
+													= riu_hat_f[u_ind] + Q(i, f) * puf;
+					}
+				}
+			}
+		}
         printf("Updating Q took ");
-        printf("%.2lfs.\n", (double)(clock() - starttime) / CLOCKS_PER_SEC);
+        printf("%.2lfs.\n", omp_get_wtime() - starttime);
+        //printf("%.2lfs.\n", (double)(clock() - starttime) / CLOCKS_PER_SEC);
         fflush(stdout);
     }
 
     double checkConvergence() {
         // Frobenius norm used
-        double diff_P = 1, diff_Q = 1;
+        double diff_P = 100000000, diff_Q = 100000000;
         if(assigned) {
             diff_P = (P - P_current).norm();
             diff_Q = (Q - Q_current).norm();
@@ -222,6 +255,7 @@ public:
 
 
 int main() {
+	omp_set_num_threads(4);
     int num_factor, max_epoch;
     double lambda, confidence, diff_threshold;
     bool verbose;
@@ -244,6 +278,9 @@ int main() {
         cout << "parsing json failed" << endl;
         exit(0);
     }
+    printf("num_factor : %d\n", num_factor);
+    printf("lambda : %lf\n", lambda);
+    printf("confidence : %lf\n", confidence);
     eALS eals = eALS(num_factor, max_epoch, lambda, \
                      confidence, diff_threshold, verbose, \
                      fname_train, fname_val);
@@ -251,7 +288,7 @@ int main() {
     eals.train();
     ofstream outFile_u("user.txt", ios::trunc);
     outFile_u << fixed;
-    outFile_u << setprecision(10);
+    outFile_u << setprecision(8);
     //for(int i=0; i<eals.num_user; i++) {
     for(int i=eals.num_user - eals.val_user; i<eals.num_user; i++) {
         vector<double> logit(num_factor);
@@ -264,7 +301,7 @@ int main() {
     outFile_u.close();
     ofstream outFile_s("item.txt", ios::trunc);
     outFile_s << fixed;
-    outFile_s << setprecision(10);
+    outFile_s << setprecision(8);
     for(int i=0; i<eals.num_item; i++) {
         vector<double> logit(num_factor);
         VectorXd::Map(&logit[0], eals.Q.row(i).size()) = eals.Q.row(i);
