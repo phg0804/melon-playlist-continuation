@@ -23,7 +23,7 @@ log = logging.getLogger("implicit")
 def calculate_similar_playlists(output_filename="similar-playlist.txt",
                                 model_name="als", 
                                 test_fname="./res/test.json",
-                                K=2):
+                                K=20, B=0.75, factors=50):
   # read in the input data file
   start = time.time()
   
@@ -50,7 +50,7 @@ def calculate_similar_playlists(output_filename="similar-playlist.txt",
 
   # generate a recommender model based off the input params
   if model_name == "als":
-    model = AlternatingLeastSquares(factors=K)
+    model = AlternatingLeastSquares(factors=factors)
 
     # lets weight these models by bm25weight.
     log.debug("weighting matrix by bm25_weight")
@@ -62,7 +62,7 @@ def calculate_similar_playlists(output_filename="similar-playlist.txt",
     del song_meta
     model = MyAlternatingLeastSquares(num_song=num_song, 
                                       num_tag=num_col-num_song, 
-                                      factors=K,
+                                      factors=facotrs,
                                       test_fname=test_fname)
 
     # lets weight these models by bm25weight.
@@ -70,10 +70,10 @@ def calculate_similar_playlists(output_filename="similar-playlist.txt",
     ratings = (bm25_weight(ratings, B=0.9) * 5).tocsr()
   
   elif model_name == "cosine":
-    model = CosineRecommender()
+    model = CosineRecommender(K=K)
 
   elif model_name == "bm25":
-    model = BM25Recommender(B=0.75, K=K)
+    model = BM25Recommender(B=B, K=K)
 
   else:
     raise NotImplementedError("TODO: model %s" % model_name)
@@ -99,24 +99,3 @@ def calculate_similar_playlists(output_filename="similar-playlist.txt",
             o.write("%s %s %s\n" % (playid, other, score))
         progress.update(1)
     
-    
-if __name__ == "__main__":
-  parser = argparse.ArgumentParser(
-    description="Generates related playlists / songs and tags ",
-    formatter_class=argparse.ArgumentDefaultsHelpFormatter
-  )
-
-  parser.add_argument('--output', type=str, default='similar-playlist.txt',
-                      dest='outputfile', help='output file name')
-  parser.add_argument('--model', type=str, default='bm25',
-                      dest='model', 
-                      help='model to calculate (als, myals, cosine, bm25)')
-  parser.add_argument('--K', type=int, default=2, dest='K',
-                      help='Parameter for als, myals and bm25')
-  args = parser.parse_args()
-
-  logging.basicConfig(level=logging.DEBUG)
-
-  calculate_similar_playlists(args.outputfile,
-                              model_name=args.model,
-                              K=args.K)

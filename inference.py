@@ -33,23 +33,20 @@ class ArenaInferrer:
       tag_ld_w2v_150 = pickle.load(f)
     
     for fname in fname_list :
-      similar_tmp = {}
+      similar_playlists = {}
       with open(fname, 'r') as f :
-        try :
-          while True:
-            a, b = f.readline().split()
-            a = int(a)
-            b = int(b)
-            if a==b:
-              continue
-            try:
-              similar_tmp[a].append(b)
-            except:
-              similar_tmp[a] = [b]
-        except:
-          print("end")
-      similar_playlist_list.append(similar_tmp)
-
+        while True:
+            line = f.readline()
+            if not line:
+                break
+            target_plylst, similar_plylst, _ = map(int, line.split())
+            if target_plylst == similar_plylst:
+                continue
+            if target_plylst in similar_playlists.keys():
+                similar_playlists[target_plylst].append(similar_plylst)
+            else:
+                similar_playlists[target_plylst] = [similar_plylst]
+      similar_playlist_list.append(similar_palylits)
     
     for i in range(len(answers_list[0])):
       tmp = {}
@@ -64,15 +61,6 @@ class ArenaInferrer:
             tmp_song[song] = 1 / (n + song_param2[k])    
         sorted_songs = sorted(tmp_song.items(), reverse=True, key=lambda _: _[1])
         sorted_songs = [k for (k, v) in sorted_songs]
-        '''
-        for n, tag in enumerate(ans[i]['tags']):
-          if tag in tmp_tag.keys():
-            tmp_tag[tag] += 1 / (n + 100)
-          else:
-            tmp_tag[tag] = 1 / (n + 100)    
-        sorted_tags = sorted(tmp_tag.items(), reverse=True, key=lambda _: _[1])
-        sorted_tags = [k for (k, v) in sorted_tags]
-        '''
       tmp['id'] = answers_list[0][i]['id']
       tmp['songs'] = sorted_songs[:200]
       tmp['tags'] = [str(_) for _ in range(10)]
@@ -89,8 +77,8 @@ class ArenaInferrer:
 
         for s_l in similar_playlist_list :
           most_id = s_l[q['id']]
-          for ID in most_id:
-              get_tag += tag_dict[int(ID)]
+          for id in most_id:
+              get_tag += tag_dict[int(id)]
         get_tag += tag_ld_w2v_100[i]
         get_tag += tag_ld_w2v_100[i]
         get_tag += tag_ld_w2v_100[i]
@@ -100,9 +88,6 @@ class ArenaInferrer:
         get_tag += tag_ld_w2v_80[i]
         get_tag += tag_ld_w2v_150[i]
         get_tag += tag_ld_w2v_150[i]
-        
-        import sys
-        print sys.getsizeof(get_tag)
         
         get_tag = list(pd.value_counts(get_tag).index)
         get_tag = remove_seen(q["tags"], get_tag)
@@ -170,3 +155,4 @@ if __name__ == "__main__":
   subprocess.call("pwd", shell=True)
 
   fire.Fire(ArenaInferrer)
+

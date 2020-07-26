@@ -8,9 +8,6 @@ from word2vec import Word2VecTrainer
 
 from arena_util import load_json, remove_seen, write_json
 
-import myimplicit
-from myimplicit2 import calculate_similar_movies
-
 class ArenaTrainer:
     def _make_coo(self):
         f = open('./coo.txt', 'w')
@@ -153,27 +150,28 @@ class ArenaTrainer:
         with open("tag_dict.pkl", "wb") as f :
             pickle.dump(self.tag_dict, f)
         
-        myimplicit.calculate_similar_playlists(model_name="myals", K=1024, test_fname=test_fname)
+        calculate_similar_playlists(model_name="myals", factors=1024, test_fname=test_fname)
         answers1 = self._get_ans_myals()        
-        myimplicit.calculate_similar_playlists(model_name="bm25", K=2)
+        calculate_similar_playlists(model_name="bm25", B=0.75, K=2)
         answers2 = self._get_ans()
-        myimplicit.calculate_similar_playlists(model_name="bm25", K=6)
+        calculate_similar_playlists(model_name="bm25", B=0.75, K=6)
         answers3 = self._get_ans()
+        calculate_similar_playlists(model_name="cosine", K=6)
+        answers4 = self._get_ans()
         self._save_models(answers1, answers2, answers3)
         
         myw2v.run(self, topn=100, with_w2v_model=True, w2v_model='w2v_model.pkl', save_model=True, song_weight=1, tag_weight=1, 
                   title_weight=2, tag_filename = 'model_tag_w2.pkl', write_results = False)
         myw2v.run(self, topn=150, with_w2v_model=True, w2v_model='w2v_model.pkl', save_model=True, song_weight=1, tag_weight=1, 
                   title_weight=2, tag_filename = 'model_tag_w3.pkl', write_results = False)
-        calculate_similar_movies('model_tag1.txt', 'cosine', K = 200)
-        calculate_similar_movies('model_tag2.txt', 'bm25', K = 200)
-        calculate_similar_movies('model_tag3.txt', 'als', K = 200, factors = 96)
-        calculate_similar_movies('model_tag4.txt', 'cosine', K = 250)
-        calculate_similar_movies('model_tag5.txt', 'bm25', K = 250)
-        calculate_similar_movies('model_tag6.txt', 'als', K = 250, factors = 64)
-        calculate_similar_movies('model_tag7.txt', 'cosine', K = 150)
-        calculate_similar_movies('model_tag8.txt', 'bm25', K = 150)
-        
+        calculate_similar_playlists("model_tag1.txt", model_name='cosine', K=200)
+        calculate_similar_playlists("model_tag2.txt", model_name='bm25', B=0.2, K=200)
+        calculate_similar_playlists("model_tag3.txt", model_name='als', factors=96)
+        calculate_similar_playlists("model_tag4.txt", model_name='cosine', K=250)
+        calculate_similar_playlists("model_tag5.txt", model_name='bm25', B=0.2, K=250)
+        calculate_similar_playlists("model_tag6.txt", model_name='als', factors=64)
+        calculate_similar_playlists("model_tag7.txt", model_name='cosine', K=150)
+        calculate_similar_playlists("model_tag8.txt", model_name='bm25', B=0.2, K=150)
 
     def train(self, train_fname, test_fname, val_fname=""):
         try:
