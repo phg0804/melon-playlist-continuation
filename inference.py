@@ -150,11 +150,4 @@ class ArenaInferrer:
       print(e)  
 
 if __name__ == "__main__":
-  # only for execution using colab
-  from google.colab import drive
-  import subprocess
-  drive.mount('/content/gdrive/')
-  subprocess.call("cd /content/gdrive/My\ Drive/melon-playlist-continuation", shell=True)
-  subprocess.call("pwd", shell=True)
-
   fire.Fire(ArenaInferrer)
