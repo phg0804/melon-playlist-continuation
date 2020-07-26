@@ -123,18 +123,16 @@ $> python inference.py infer \
 ## 알고리즘
 
 저희 팀은 주로 matrix factorization 기반인 ALS와 neighborhood-base learning인 BM25와 cosine을 사용하였고, 자연언어처리 모델인 gensim의 word2Vec을 사용하였습니다.
-ALS와 BM25, cosine은 implicit library에 있는 것을 사용하였고, myals는 als를 변형하여 사용하였습니다.
+ALS와 BM25, cosine은 implicit library에 있는 것을 사용하였고, myALS는 ALS를 변형하여 사용하였습니다.
 
 ### 1. ALS, myALS(Alternating Least Squares)
 
-- myALS  
-   다음의 모델들에 대하여 song을 예측하였습니다.
-   1. model_song1.pkl (myALS)
+다음의 모델들에 대하여 song을 예측하였습니다.
+1. model_song1.pkl (myALS)
 
-- ALS  
-   다음의 모델들에 대하여 tag를 예측하였습니다.
-   1. model_tag3.txt (ALS)
-   2. model_tag6.txt (ALS)
+다음의 모델들에 대하여 tag를 예측하였습니다.
+1. model_tag3.txt (ALS)
+2. model_tag6.txt (ALS)
 
 
 
