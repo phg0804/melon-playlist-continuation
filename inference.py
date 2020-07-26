@@ -127,6 +127,8 @@ class ArenaInferrer:
       answers2 = pickle.load(f)
     with open("./model_song3.pkl", 'rb') as f:
       answers3 = pickle.load(f)
+    with open("./model_song4.pkl", 'rb') as f:
+      answers4 = pickle.load(f)
     
     self.test = pd.read_json(test_fname, encoding='UTF-8')
     self.w2v_results = load_json("./arena_data/results/w2v_results.json")
@@ -134,9 +136,10 @@ class ArenaInferrer:
     self.filter_future_songs(answers1, self.test)
     self.filter_future_songs(answers2, self.test)
     self.filter_future_songs(answers3, self.test)
+    self.filter_future_songs(answers4, self.test)
     
-    answers = self.ensemble([answers1, answers2, answers3], 
-                            [15, 30, 50], [18, 40, 110])
+    answers = self.ensemble([answers1, answers2, answers3, answers4], 
+                            [15, 30, 50, 110], [18, 40, 110, 110])
     write_json(answers, result_fname)
 
   def infer(self, test_fname, result_fname):
@@ -155,4 +158,3 @@ if __name__ == "__main__":
   subprocess.call("pwd", shell=True)
 
   fire.Fire(ArenaInferrer)
-

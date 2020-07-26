@@ -7,6 +7,7 @@ from tqdm import tqdm
 from word2vec import Word2VecTrainer
 
 from arena_util import load_json, remove_seen, write_json
+from myimplicit import calculate_similar_playlists
 
 class ArenaTrainer:
     def _make_coo(self):
@@ -126,7 +127,6 @@ class ArenaTrainer:
                                 most_results_fname="./arena_data/results/results.json")
         myw2v.run(topn=80, song_weight=1, tag_weight=2, 
                   title_weight=4, tag_filename = 'model_tag_w1.pkl', save_model=True)
-
         tag_set = set([])
 
         for i, q in self.train.iterrows():
@@ -135,10 +135,9 @@ class ArenaTrainer:
         for i, q in self.test.iterrows():
           for s in q['tags']:
             tag_set.add(s)
-
         self.tag2id = {x : i for i, x in enumerate(list(tag_set))}
         self.id2tag = {i : x for i, x in enumerate(list(tag_set))}
-      
+
         self._make_coo()
         
         self.w2v_results = pd.read_json("./arena_data/results/w2v_results.json", encoding='UTF-8')
@@ -147,15 +146,17 @@ class ArenaTrainer:
         self.tag_dict = self.data['tags'].to_dict()
         with open("tag_dict.pkl", "wb") as f :
             pickle.dump(self.tag_dict, f)
-        
+
         calculate_similar_playlists(model_name="myals", factors=1024, test_fname=test_fname)
         answers1 = self._get_ans_myals()        
         calculate_similar_playlists(model_name="bm25", B=0.75, K=2)
         answers2 = self._get_ans()
         calculate_similar_playlists(model_name="bm25", B=0.75, K=6)
         answers3 = self._get_ans()
-        self._save_models(answers1, answers2, answers3)
-        
+        calculate_similar_playlists(model_name="cosine", K=6)
+        answers4 = self._get_ans()
+        self._save_models(answers1, answers2, answers3, answers4)
+
         myw2v.run(topn=100, with_w2v_model=True, w2v_model='w2v_model.pkl', save_model=True, song_weight=1, tag_weight=1, 
                   title_weight=2, tag_filename = 'model_tag_w2.pkl', write_results = False)
         myw2v.run(topn=150, with_w2v_model=True, w2v_model='w2v_model.pkl', save_model=True, song_weight=1, tag_weight=1, 
