@@ -44,7 +44,7 @@ class ArenaTrainer:
             line = f.readline()
             if not line:
                 break
-            target_plylst, similar_plylst, _ = line.split()
+            target_plylst, similar_plylst = line.split()
             target_plylst = int(target_plylst)
             similar_plylst = int(similar_plylst)
             if target_plylst==similar_plylst:
