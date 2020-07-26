@@ -161,7 +161,7 @@ Word2Vec는 포럼에 올라와있는 코드(https://arena.kakao.com/forum/topic
 다음과 같은 모델들에 대하여 song을 예측하였습니다. Word2Vec model생성은 20분 정도 소요됩니다.
 1. w2v_model.pkl
 
-학습한 모델을 바탕으로 가중치들과 neighborhood의 개수 등을 조절하여 ensemble할 수 있는 데이터들을 만들었습니다.  
+학습한 모델을 바탕으로 가중치들과 neighborhood의 개수 등을 조절하여 ensemble할 수 있는 데이터들을 생성하였습니다.  
 생성된 데이터들은 다음과 같습니다.
 1. arena_data/results/w2v_results.json
 2. model_tag_w1.pkl
