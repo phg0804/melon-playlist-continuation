@@ -96,6 +96,6 @@ def calculate_similar_playlists(output_filename="similar-playlist.txt",
       for playid in to_generate:
         if ratings.indptr[playid] != ratings.indptr[playid+1] and mask[playid]:
           for other, score in model.similar_items(playid, 201):
-            o.write("%s %s %s\n" % (playid, other, score))
+            o.write("%s %s\n" % (playid, other))
         progress.update(1)
     

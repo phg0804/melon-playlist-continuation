@@ -39,7 +39,7 @@ class ArenaInferrer:
             line = f.readline()
             if not line:
                 break
-            target_plylst, similar_plylst, _ = map(int, line.split())
+            target_plylst, similar_plylst = map(int, line.split())
             if target_plylst == similar_plylst:
                 continue
             if target_plylst in similar_playlists.keys():

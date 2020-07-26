@@ -44,9 +44,7 @@ class ArenaTrainer:
             line = f.readline()
             if not line:
                 break
-            target_plylst, similar_plylst = line.split()
-            target_plylst = int(target_plylst)
-            similar_plylst = int(similar_plylst)
+            target_plylst, similar_plylst = map(int, line.split())
             if target_plylst==similar_plylst:
                 continue
             if target_plylst in similar_playlists.keys():
