@@ -21,11 +21,12 @@ Colab PRO
 res 디렉토리에 다운로드 받습니다. 
 
 ```bash
-├── res
-   ├── train.json
-   ├── val.json
-   ├── test.json
-   └── song_meta.json
+├── melon-playlist-continuation
+   ├── res
+      ├── train.json
+      ├── val.json
+      ├── test.json
+      └── song_meta.json
 ``` 
 
 
@@ -111,7 +112,7 @@ $> python inference.py infer \
 
 ## 2. 알고리즘
 
-우리는 주로 matrix factorization 기반인 ALS와 neighborhood-base learning인 BM25와 cosine을 사용하였고, 자연언어처리 모델인 gensim의 word2Vec을 사용하였습니다.
+저희 팀은 주로 matrix factorization 기반인 ALS와 neighborhood-base learning인 BM25와 cosine을 사용하였고, 자연언어처리 모델인 gensim의 word2Vec을 사용하였습니다.
 ALS와 BM25, cosine은 implicit의 library에 있는 것을 사용하였고, myals는 als를 변형하여 사용하였습니다.
 
 ### 1. ALS, myALS
@@ -164,3 +165,5 @@ Word2Vec는 포럼에 올라와있는 코드(https://arena.kakao.com/forum/topic
 |---|------|
 | song | myALS, BM25, Word2Vec |
 | tag  | ALS, cosine, BM25, Word2Vec |
+
+tag 예측의 경우, 총 11개의 모델이 각각 주어진 playlist와 가까운 playlist들을 찾고, 가까운 playlist들에 들어있는 tag들을 하나의 list로 합칩니다. 합친 후 list에 가장 많이 등장하는 10개의 tag들을 답안으로 제출하였습니다.
