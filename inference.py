@@ -46,7 +46,7 @@ class ArenaInferrer:
                 similar_playlists[target_plylst].append(similar_plylst)
             else:
                 similar_playlists[target_plylst] = [similar_plylst]
-      similar_playlist_list.append(similar_palylits)
+      similar_playlist_list.append(similar_playlists)
     
     for i in range(len(answers_list[0])):
       tmp = {}
