@@ -34,7 +34,6 @@ res 디렉토리에 다운로드 받습니다.
 
 
 ### Step 2. 모델 학습
-모델 [다운로드](https://drive.google.com/drive/folders/1AKdPXtyAl8nFA0i325pHdtNTDfxxYfmQ?usp=sharing)
 #### Step 2-1. Baseline (genre_most_popular) 실행
 ```bash
 $> python genre_most_popular.py run \
@@ -52,7 +51,7 @@ $> python train.py train \
    --test_fname=res/test.json \
    --val_fname=res/val.json
 ```
-위 command를 실행하면 `coo.txt` 라는 이름의 ALS 알고리즘을 위한 데이터와 `tag_dict.pkl`라는 이름의 tag를 id와 매핑한 딕셔너리의 pickle 파일과 함께
+위 command를 실행하면 `coo.txt`(ALS를 위한 데이터)와 `tag_dict.pkl`(tag를 id와 매핑한 딕셔너리의 pickle 파일)과 함께
 다음과 같은 모델들이 생성됩니다.
 
 | model | 설명 | 용량 |
@@ -129,7 +128,7 @@ ALS와 BM25, cosine은 implicit library에 있는 것을 사용하였고, myals�
 
 - myALS  
    다음의 모델들에 대하여 song을 예측하였습니다.
-   1. model_song1.pkl (K=1024, myALS)
+   1. model_song1.pkl (myALS)
 
 - ALS  
    다음의 모델들에 대하여 tag를 예측하였습니다.
@@ -145,7 +144,7 @@ ALS와 BM25, cosine은 implicit library에 있는 것을 사용하였고, myals�
 2. model_song3.pkl (BM25)
 3. model_song4.pkl (cosine)
 
-다음의 모델들에 대하여 태그를 예측하였습니다.
+다음의 모델들에 대하여 tag를 예측하였습니다.
 1. model_tag1.txt (cosine)
 2. model_tag4.txt (cosine)
 3. model_tag7.txt (cosine)
@@ -156,14 +155,14 @@ ALS와 BM25, cosine은 implicit library에 있는 것을 사용하였고, myals�
 ### 2.3 Word2Vec
 
 Word2Vec는 포럼에 올라와있는 코드(https://arena.kakao.com/forum/topics/232)를 바탕으로 되어있습니다.  
-저희 팀의 코드는 word2vec.py에 적혀있습니다.
+저희 팀의 코드는 word2vec.py에 작성하였습니다.
 
 
-다음과 같은 모델들에 대하여 song을 예측하였습니다. Word2Vec model을 만드는데는 20분 정도 소요됩니다.
-1. w2v_model.pkl(min_count=1, size=30, window=100, sg=1)
+다음과 같은 모델들에 대하여 song을 예측하였습니다. Word2Vec model생성은 20분 정도 소요됩니다.
+1. w2v_model.pkl
 
 학습한 모델을 바탕으로 가중치들과 neighborhood의 개수 등을 조절하여 ensemble할 수 있는 데이터들을 만들었습니다.  
-만든 데이터들은 다음과 같습니다.
+생성된 데이터들은 다음과 같습니다.
 1. arena_data/results/w2v_results.json
 2. model_tag_w1.pkl
 3. model_tag_w2.pkl
@@ -171,13 +170,13 @@ Word2Vec는 포럼에 올라와있는 코드(https://arena.kakao.com/forum/topic
 
 ### 2.4. Ensemble
 
-위에서 만든 데이터를 기반으로, song과 tag 각각 따로 앙상블을 실시하여 결과를 도출했습니다.
+위에서 생성한 데이터를 기반으로, song과 tag 각각 따로 앙상블을 실시하여 결과를 도출했습니다.
 | feature | model |
 |---|------|
 | song | myALS, cosine, BM25, Word2Vec |
 | tag  | ALS, cosine, BM25, Word2Vec |
 
-tag 예측의 경우, 총 11개의 모델이 각각 주어진 playlist와 가까운 playlist들을 찾고, 가까운 playlist들에 들어있는 tag들 중 가장 많이 등장하는 10개의 tag들을 답안으로 제출하였습니다.
+tag 예측의 경우, 총 11개의 모델이 각각 주어진 playlist와 가까운 playlist들을 찾고, 그 playlist들에 들어있는 tag들 중 가장 많이 등장하는 10개의 tag들을 답안으로 제출하였습니다.
 
 ## 3. 대략적 실행시간
 
