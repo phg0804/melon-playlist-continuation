@@ -62,7 +62,7 @@ def calculate_similar_playlists(output_filename="similar-playlist.txt",
     del song_meta
     model = MyAlternatingLeastSquares(num_song=num_song, 
                                       num_tag=num_col-num_song, 
-                                      factors=facotrs,
+                                      factors=factors,
                                       test_fname=test_fname)
 
     # lets weight these models by bm25weight.

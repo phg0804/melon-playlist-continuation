@@ -150,7 +150,7 @@ class Word2VecTrainer:
             
         self._playlist2vec(song_weight, tag_weight, title_weight)
 
-        self._getresults(topn, tag_filename)
+        self._get_results(topn, tag_filename)
 
         if(write_results):
             write_json(self.answers, "./results/w2v_results.json")
