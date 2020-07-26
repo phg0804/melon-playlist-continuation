@@ -14,6 +14,7 @@ Colab PRO
 - RAM 25.51GB
 - Linux-4.19.104+-x86_64-with-Ubuntu-18.04-bionic
 - Python 3.6.9
+**myals 실행을 위하여 GPU가 반드시 필요합니다.**
 
 ## 실행
 ### Step 1. 데이터 다운로드
@@ -57,6 +58,7 @@ $> python train.py train \
 | model_song1.pkl | myALS | 118MB |
 | model_song2.pkl | BM25 | 6MB |
 | model_song3.pkl | BM25 | 16MB |
+| model_song4.pkl | cosine | 16MB |
 | w2v_tags.pkl | w2v | 40MB |
 | w2v_model.pkl | w2v | 210MB |
 | model_tag_w1.pkl | w2v | **TODO** |
@@ -133,6 +135,7 @@ ALS와 BM25, cosine은 implicit의 library에 있는 것을 사용하였고, mya
 다음의 모델들에 대하여 song을 예측하였습니다.
 1. model_song2.pkl (BM25)
 2. model_song3.pkl (BM25)
+3. model_song4.pkl (cosine)
 
 다음의 모델들에 대하여 태그를 예측하였습니다.
 1. model_tag1.txt (cosine)
@@ -166,4 +169,13 @@ Word2Vec는 포럼에 올라와있는 코드(https://arena.kakao.com/forum/topic
 | song | myALS, BM25, Word2Vec |
 | tag  | ALS, cosine, BM25, Word2Vec |
 
-tag 예측의 경우, 총 11개의 모델이 각각 주어진 playlist와 가까운 playlist들을 찾고, 가까운 playlist들에 들어있는 tag들을 하나의 list로 합칩니다. 합친 후 list에 가장 많이 등장하는 10개의 tag들을 답안으로 제출하였습니다.
+tag 예측의 경우, 총 11개의 모델이 각각 주어진 playlist와 가까운 playlist들을 찾고, 가까운 playlist들에 들어있는 tag들 중 가장 많이 등장하는 10개의 tag들을 답안으로 제출하였습니다.
+
+## 3. 대략적 실행시간
+
+대략적인 실행시간입니다.
+| command | time |
+|---|------|
+| genre_most_popular.py | min |
+| train.py  | min |
+| inference.py  | min |
