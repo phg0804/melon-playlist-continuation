@@ -20,7 +20,7 @@ Colab PRO
 
 ## 실행
 ### Step 1. 데이터 다운로드
-아레나 홈페이지 https://arena.kakao.com/c/7/data 에 제공되는 파일을 
+[아레나 홈페이지](https://arena.kakao.com/c/7/data) 에 제공되는 파일을 
 res 디렉토리에 다운로드 받습니다. 
 
 ```bash
@@ -34,6 +34,7 @@ res 디렉토리에 다운로드 받습니다.
 
 
 ### Step 2. 모델 학습
+모델 [다운로드](https://drive.google.com/drive/folders/1AKdPXtyAl8nFA0i325pHdtNTDfxxYfmQ?usp=sharing)
 #### Step 2-1. Baseline (genre_most_popular) 실행
 ```bash
 $> python genre_most_popular.py run \
@@ -51,7 +52,7 @@ $> python train.py train \
    --test_fname=res/test.json \
    --val_fname=res/val.json
 ```
-위 command를 실행하면 `coo.txt`(ALS를 위한 데이터)와 `tag_dict.pkl`(tag를 id와 매핑한 딕셔너리의 pickle 파일)과 함께
+위 command를 실행하면 `coo.txt`(ALS 알고리즘을 위한 데이터)와 `tag_dict.pkl`(tag를 id와 매핑한 딕셔너리의 pickle 파일)과 함께
 다음과 같은 모델들이 생성됩니다.
 
 | model | 설명 | 용량 |
@@ -154,7 +155,7 @@ ALS와 BM25, cosine은 implicit library에 있는 것을 사용하였고, myals�
 
 ### 2.3 Word2Vec
 
-Word2Vec는 포럼에 올라와있는 코드(https://arena.kakao.com/forum/topics/232)를 바탕으로 되어있습니다.  
+Word2Vec는 카카오 아레나 포럼에 올라와있는 [코드](https://arena.kakao.com/forum/topics/232)를 참고하였습니다.  
 저희 팀의 코드는 word2vec.py에 작성하였습니다.
 
 
