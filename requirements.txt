@@ -1,3 +1,6 @@
 fire
 tqdm
 numpy
+implicit
+gensim
+pandas
