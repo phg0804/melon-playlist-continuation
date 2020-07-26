@@ -34,6 +34,7 @@ res 디렉토리에 다운로드 받습니다.
 
 
 ### Step 2. 모델 학습
+모델 [다운로드](https://drive.google.com/drive/folders/1AKdPXtyAl8nFA0i325pHdtNTDfxxYfmQ?usp=sharing)
 #### Step 2-1. Baseline (genre_most_popular) 실행
 ```bash
 $> python genre_most_popular.py run \
@@ -51,7 +52,7 @@ $> python train.py train \
    --test_fname=res/test.json \
    --val_fname=res/val.json
 ```
-위 command를 실행하면 `coo.txt` 라는 이름의 ALS를 위한 데이터와 `tag_dict.pkl`라는 이름의 tag를 id와 매핑한 딕셔너리의 pickle 파일과 함께
+위 command를 실행하면 `coo.txt` 라는 이름의 ALS 알고리즘을 위한 데이터와 `tag_dict.pkl`라는 이름의 tag를 id와 매핑한 딕셔너리의 pickle 파일과 함께
 다음과 같은 모델들이 생성됩니다.
 
 | model | 설명 | 용량 |
