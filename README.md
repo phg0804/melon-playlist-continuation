@@ -176,7 +176,7 @@ Word2Vec는 포럼에 올라와있는 코드(https://arena.kakao.com/forum/topic
 | song | myALS, cosine, BM25, Word2Vec |
 | tag  | ALS, cosine, BM25, Word2Vec |
 
-tag 예측의 경우, 총 11개의 모델이 각각 주어진 playlist와 가까운 playlist들을 찾고, 그 playlist들에 들어있는 tag들 중 가장 많이 등장하는 10개의 tag들을 답안으로 제출하였습니다.
+tag 예측의 경우, 총 11개의 모델이 각각 주어진 playlist와 가까운 playlist들을 찾고, 그 playlist들에서 가장 자주 등장하는 10개의 tag들을 답안으로 제출하였습니다.
 
 ## 3. 대략적 실행시간
 
