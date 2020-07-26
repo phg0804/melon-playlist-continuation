@@ -138,7 +138,7 @@ ALS와 BM25, cosine은 implicit library에 있는 것을 사용하였고, myals�
 
 
 
-### 2.2. BM25, cosine
+### 2. BM25, cosine
 
 다음의 모델들에 대하여 song을 예측하였습니다.
 1. model_song2.pkl (BM25)
@@ -153,7 +153,7 @@ ALS와 BM25, cosine은 implicit library에 있는 것을 사용하였고, myals�
 5. model_tag5.txt (BM25)
 6. model_tag8.txt (BM25)
 
-### 2.3 Word2Vec
+### 3. Word2Vec
 
 Word2Vec는 카카오 아레나 포럼에 올라와있는 [코드](https://arena.kakao.com/forum/topics/232)를 참고하였습니다.  
 저희 팀의 코드는 word2vec.py에 작성하였습니다.
@@ -169,7 +169,7 @@ Word2Vec는 카카오 아레나 포럼에 올라와있는 [코드](https://arena
 3. model_tag_w2.pkl
 4. model_tag_w3.pkl
 
-### 2.4. Ensemble
+### 4. Ensemble
 
 위에서 생성한 데이터를 기반으로, song과 tag 각각 따로 앙상블을 실시하여 결과를 도출했습니다.
 | feature | model |
@@ -179,7 +179,7 @@ Word2Vec는 카카오 아레나 포럼에 올라와있는 [코드](https://arena
 
 tag 예측의 경우, 총 11개의 모델이 각각 주어진 playlist와 가까운 playlist들을 찾고, 그 playlist들에서 가장 자주 등장하는 10개의 tag들을 답안으로 제출하였습니다.
 
-## 3. 대략적 실행시간
+## 대략적 실행시간
 
 위에서 언급된 개발환경에서의 대략적인 실행시간입니다.
 | command | time |
