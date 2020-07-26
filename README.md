@@ -51,9 +51,8 @@ $> python train.py train \
    --test_fname=res/test.json \
    --val_fname=res/val.json
 ```
-위 command를 실행하면 다음과 같은 파일들이 생성됩니다.
-
-~~추가부탁~~
+위 command를 실행하면 `coo.txt` 라는 이름의 ALS를 위한 데이터와 `tag_dict.pkl`라는 이름의 tag를 id와 매핑한 딕셔너리의 pickle 파일과 함께
+다음과 같은 모델들이 생성됩니다.
 
 | model | 설명 | 용량 |
 |---|:---:|---:|
@@ -61,8 +60,6 @@ $> python train.py train \
 | model_song2.pkl | BM25 | 3MB |
 | model_song3.pkl | BM25 | 8MB |
 | model_song4.pkl | cosine | 5MB |
-| w2v_tags.pkl | w2v | 40MB |
-| w2v_model.pkl | w2v | 220MB |
 | model_tag_w1.pkl | w2v | 16MB |
 | model_tag_w2.pkl | w2v | 20MB |
 | model_tag_w3.pkl | w2v | 27MB |
@@ -74,7 +71,9 @@ $> python train.py train \
 | model_tag6.txt | ALS | 24MB |
 | model_tag7.txt | cosine | 17MB |
 | model_tag8.txt | BM25 | 17MB |
+| w2v_model.pkl | w2v | 220MB |
 | w2v_results.json | w2v | 10MB | 
+
 
 
 
@@ -123,7 +122,7 @@ $> python inference.py infer \
 ## 알고리즘
 
 저희 팀은 주로 matrix factorization 기반인 ALS와 neighborhood-base learning인 BM25와 cosine을 사용하였고, 자연언어처리 모델인 gensim의 word2Vec을 사용하였습니다.
-ALS와 BM25, cosine은 implicit의 library에 있는 것을 사용하였고, myals는 als를 변형하여 사용하였습니다.
+ALS와 BM25, cosine은 implicit library에 있는 것을 사용하였고, myals는 als를 변형하여 사용하였습니다.
 
 ### 1. ALS, myALS
 
