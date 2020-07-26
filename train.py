@@ -154,8 +154,6 @@ class ArenaTrainer:
         answers2 = self._get_ans()
         calculate_similar_playlists(model_name="bm25", B=0.75, K=6)
         answers3 = self._get_ans()
-        calculate_similar_playlists(model_name="cosine", K=6)
-        answers4 = self._get_ans()
         self._save_models(answers1, answers2, answers3)
         
         myw2v.run(topn=100, with_w2v_model=True, w2v_model='w2v_model.pkl', save_model=True, song_weight=1, tag_weight=1, 
