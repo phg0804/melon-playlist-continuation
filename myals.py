@@ -185,43 +185,8 @@ class MyAlternatingLeastSquares(MatrixFactorizationBase):
 
         if self.use_gpu:
             return self._fit_gpu(Ciu, Cui, vali_user_items, show_progress)
-
-        solver = self.solver
-
-        log.debug("Running %i ALS iterations", self.iterations)
-        
-        with tqdm(total=self.iterations, disable=not show_progress) as progress:
-            # alternate between learning the user_factors from the item_factors and vice-versa
-            for iteration in range(self.iterations):
-                s = time.time()
-                solver(Cui, self.user_factors, self.item_factors, self.regularization,
-                       num_threads=self.num_threads)
-                solver(Ciu, self.item_factors, self.user_factors, self.regularization,
-                       num_threads=self.num_threads)
-                progress.update(1)
-
-                if self.calculate_training_loss:
-                    loss = _als.calculate_loss(Cui, self.user_factors, self.item_factors,
-                                               self.regularization, num_threads=self.num_threads)
-                    progress.set_postfix({"loss": loss})
-
-                if self.fit_callback:
-                    self.fit_callback(iteration, time.time() - s)
-
-                if self.use_validation and ((iteration + 1) % self.validate_step) == 0:
-                    vali_res = self.validate(Cui, vali_user_items, self.validate_N)
-                    log.info(
-                        "[iter %d] Precision %0.4f MAP %0.4f NDCG %0.4f AUC %0.4f" %
-                        (iteration,
-                         vali_res["precision"],
-                         vali_res["map"],
-                         vali_res["ndcg"],
-                         vali_res["auc"]))
-                
-        if self.calculate_training_loss:
-            log.info("Final training loss %.4f", loss)
-
-
+        else:
+            raise NotImplementedError
 
     def _fit_gpu(self, Ciu_host, Cui_host, vali_user_items, show_progress=True):
         """ specialized training on the gpu. copies inputs to/from cuda device """
@@ -289,15 +254,15 @@ class MyAlternatingLeastSquares(MatrixFactorizationBase):
         tags = []
         x = X_tensor.to("cuda")
         del X_tensor
-        y1 = Y1_tensor.to("cuda")
+        y_song = Y1_tensor.to("cuda")
         del Y1_tensor
-        y2 = Y2_tensor.to("cuda")
+        y_tag = Y2_tensor.to("cuda")
         del Y2_tensor        
         for i in tqdm(range(x.shape[0])):
-            results = torch.mm(x[i:(i+1),], y1)
-            results2 = torch.mm(x[i:(i+1),], y2)
-            _, indices_song = torch.sort(results, descending=True)
-            _, indices_tag = torch.sort(results2, descending=True)
+            results_song = torch.mm(x[i:(i+1),], y_song)
+            results_tag = torch.mm(x[i:(i+1),], y_tag)
+            _, indices_song = torch.sort(results_song, descending=True)
+            _, indices_tag = torch.sort(results_tag, descending=True)
             songs.append(indices_song[0,:200].cpu().numpy())
             tags.append(indices_tag[0,:20].cpu().numpy())
                                 
@@ -310,67 +275,6 @@ class MyAlternatingLeastSquares(MatrixFactorizationBase):
         return user_factor(self.item_factors, self.YtY,
                            user_items.tocsr(), userid,
                            self.regularization, self.factors)
-
-    def explain(self, userid, user_items, itemid, user_weights=None, N=10):
-        """ Provides explanations for why the item is liked by the user.
-
-        Parameters
-        ---------
-        userid : int
-            The userid to explain recommendations for
-        user_items : csr_matrix
-            Sparse matrix containing the liked items for the user
-        itemid : int
-            The itemid to explain recommendations for
-        user_weights : ndarray, optional
-            Precomputed Cholesky decomposition of the weighted user liked items.
-            Useful for speeding up repeated calls to this function, this value
-            is returned
-        N : int, optional
-            The number of liked items to show the contribution for
-
-        Returns
-        -------
-        total_score : float
-            The total predicted score for this user/item pair
-        top_contributions : list
-            A list of the top N (itemid, score) contributions for this user/item pair
-        user_weights : ndarray
-            A factorized representation of the user. Passing this in to
-            future 'explain' calls will lead to noticeable speedups
-        """
-        # user_weights = Cholesky decomposition of Wu^-1
-        # from section 5 of the paper CF for Implicit Feedback Datasets
-        user_items = user_items.tocsr()
-        if user_weights is None:
-            A, _ = user_linear_equation(self.item_factors, self.YtY,
-                                        user_items, userid,
-                                        self.regularization, self.factors)
-            user_weights = scipy.linalg.cho_factor(A)
-        seed_item = self.item_factors[itemid]
-
-        # weighted_item = y_i^t W_u
-        weighted_item = scipy.linalg.cho_solve(user_weights, seed_item)
-
-        total_score = 0.0
-        h = []
-        for i, (itemid, confidence) in enumerate(nonzeros(user_items, userid)):
-            if confidence < 0:
-                continue
-
-            factor = self.item_factors[itemid]
-            # s_u^ij = (y_i^t W^u) y_j
-            score = weighted_item.dot(factor) * confidence
-            total_score += score
-            contribution = (score, itemid)
-            if i < N:
-                heapq.heappush(h, contribution)
-            else:
-                heapq.heappushpop(h, contribution)
-
-        items = (heapq.heappop(h) for i in range(len(h)))
-        top_contributions = list((i, s) for s, i in items)[::-1]
-        return total_score, top_contributions, user_weights
 
     @property
     def solver(self):
